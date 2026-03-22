@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sign Language Translator{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+</head>
+<body>
+    <div class="page-shell">
+        {% block content %}{% endblock %}
+
+        <nav class="bottom-nav" aria-label="Primary navigation">
+            <a href="{% url 'sharpen_your_brain' %}" class="nav-button{% if active_page == 'brain' %} nav-button--active{% endif %}">Sharpen Your Brain</a>
+            <a href="{% url 'lets_practice' %}" class="nav-button{% if active_page == 'practice' %} nav-button--active{% endif %}">Let's Practice</a>
+            <a href="{% url 'home' %}" class="nav-button{% if active_page == 'home' %} nav-button--active{% endif %}">Home</a>
+            <a href="{% url 'learn_vocabularies' %}" class="nav-button{% if active_page == 'vocabularies' %} nav-button--active{% endif %}">Learn Vocabularies</a>
+            <a href="{% url 'about_me' %}" class="nav-button{% if active_page == 'about' %} nav-button--active{% endif %}">About Me</a>
+        </nav>
+    </div>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

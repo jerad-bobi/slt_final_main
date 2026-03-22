@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Let's Practice{% endblock %}
+
+{% block content %}
+<main class="hero-section practice-page" aria-label="Let's Practice translator page">
+    <section class="practice-header">
+        <p class="page-label">Practice ↔</p>
+        <h1 class="page-title">Text ↔ Sign practice.</h1>
+        <p class="page-description">One screen. Two directions.</p>
+    </section>
+
+    <section class="translator-shell" data-mode="text-to-sign" data-lookup-url="{% url 'signasl_lookup' %}">
+        <div class="translator-topbar">
+            <div class="translator-mode" id="mode-label">Text → Sign</div>
+            <button class="swap-button" type="button" id="swap-translator" aria-label="Switch translator direction">
+                <span class="swap-button__icon" aria-hidden="true">&harr;</span>
+            </button>
+        </div>
+
+        <div class="translator-grid">
+            <article class="translator-panel translator-panel--input">
+                <header class="translator-panel__header">
+                    <h2 id="source-title">Text</h2>
+                    <span id="source-hint">Word / phrase / sentence</span>
+                </header>
+
+                <div class="mode-block mode-block--active" data-mode-block="text-to-sign-source">
+                    <label class="visually-hidden" for="practice-text-input">Text input</label>
+                    <textarea
+                        id="practice-text-input"
+                        class="translator-textarea"
+                        placeholder="Type here to practice text to sign..."
+                    ></textarea>
+                </div>
+
+                <div class="mode-block" data-mode-block="sign-to-text-source">
+                    <div class="sign-capture-box">
+                        <div class="capture-mark">Cam ●</div>
+                        <div class="camera-preview-shell">
+                            <video id="camera-preview" class="camera-preview" autoplay muted playsinline></video>
+                            <div id="camera-status" class="camera-status">Switch to Sign → Text.</div>
+                        </div>
+                        <button class="capture-button" type="button" id="restart-camera">↻ Camera</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="translator-panel translator-panel--output">
+                <header class="translator-panel__header">
+                    <h2 id="target-title">Sign</h2>
+                    <span id="target-hint">Preview</span>
+                </header>
+
+                <div class="mode-block mode-block--active" data-mode-block="text-to-sign-target">
+                    <div class="sign-preview" id="sign-preview">
+                        <div class="sign-preview__empty-state" aria-hidden="true"></div>
+                    </div>
+                </div>
+
+                <div class="mode-block" data-mode-block="sign-to-text-target">
+                    <div class="translated-text-box" id="sign-text-output">
+                        Text output.
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/lets_practice.js' %}"></script>
+{% endblock %}

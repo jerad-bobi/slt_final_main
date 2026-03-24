@@ -4,6 +4,12 @@
     gap: 22px;
 }
 
+.profile-history-grid {
+    display: grid;
+    grid-template-columns: minmax(240px, 0.75fr) minmax(0, 1.25fr);
+    gap: 22px;
+}
+
 .profile-card-shell {
     display: flex;
     align-items: center;
@@ -50,10 +56,104 @@
     margin: 0;
 }
 
+.profile-summary-card,
+.profile-history-card {
+    padding: 28px;
+}
+
+.profile-summary-stats {
+    display: grid;
+    gap: 14px;
+    margin-top: 16px;
+}
+
+.profile-summary-stat {
+    padding: 16px 18px;
+    border: 1px solid rgba(35, 49, 45, 0.08);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.56);
+}
+
+.profile-summary-stat span,
+.profile-history-item__eyebrow {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.profile-summary-stat strong {
+    font-family: var(--font-display);
+    font-size: 1.9rem;
+}
+
+.profile-history-card__header {
+    margin-bottom: 18px;
+}
+
+.profile-history-card__header h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 2rem;
+}
+
+.profile-history-list {
+    display: grid;
+    gap: 12px;
+}
+
+.profile-history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px;
+    border: 1px solid rgba(35, 49, 45, 0.08);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.56);
+}
+
+.profile-history-item__score {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+}
+
+.profile-history-item__date,
+.profile-history-empty {
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.profile-history-item__date {
+    text-align: right;
+}
+
+.profile-history-empty {
+    padding: 20px;
+    border: 1px dashed rgba(35, 49, 45, 0.14);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.38);
+}
+
 @media (max-width: 720px) {
+    .profile-history-grid,
     .profile-card-shell,
     .profile-card {
+        grid-template-columns: 1fr;
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .profile-history-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .profile-history-item__date {
+        text-align: left;
     }
 }

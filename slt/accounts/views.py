@@ -1,10 +1,11 @@
 from django.contrib.auth.hashers import check_password, make_password
+from django.db.models import Max
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
 
 from .forms import LoginForm, RegisterForm
-from .models import Account
+from .models import Account, BrainQuizAttempt
 
 
 SESSION_ACCOUNT_ID = 'account_id'
@@ -114,11 +115,17 @@ def about_me(request: HttpRequest) -> HttpResponse:
         return redirect('account_access')
 
     _touch_account(account)
+    attempts = list(account.brain_quiz_attempts.all())
+    best_score = account.brain_quiz_attempts.aggregate(best_score=Max('score'))['best_score']
+
     return render(
         request,
         'profile.html',
         {
             'active_page': 'about',
             'account': account,
+            'quiz_attempts': attempts,
+            'quiz_attempt_count': len(attempts),
+            'best_score': best_score,
         },
     )

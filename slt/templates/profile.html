@@ -14,7 +14,7 @@
     <article class="panel-surface panel-surface--hero profile-intro">
         <p class="eyebrow">About Me</p>
         <h1 class="display-title">Your personal account card now sits inside the same design system as the rest of the site.</h1>
-        <p class="lead-copy">This page is ready to grow into a real profile surface with saved goals, recent practice, and vocabulary history.</p>
+        <p class="lead-copy">This page now includes your saved brain quiz history so each finished round has a visible record.</p>
     </article>
 
     <section class="panel-surface profile-card-shell">
@@ -27,6 +27,49 @@
             </div>
         </div>
         <a href="{% url 'logout' %}" class="button button--secondary">Logout</a>
+    </section>
+
+    <section class="profile-history-grid">
+        <article class="panel-surface profile-summary-card">
+            <p class="card-label">Quiz summary</p>
+            <div class="profile-summary-stats">
+                <div class="profile-summary-stat">
+                    <span>Total attempts</span>
+                    <strong>{{ quiz_attempt_count }}</strong>
+                </div>
+                <div class="profile-summary-stat">
+                    <span>Best score</span>
+                    <strong>{% if best_score is not None %}{{ best_score }}{% else %}0{% endif %}</strong>
+                </div>
+            </div>
+        </article>
+
+        <article class="panel-surface profile-history-card">
+            <div class="profile-history-card__header">
+                <div>
+                    <p class="card-label">Brain quiz attempts</p>
+                    <h2>Saved scores</h2>
+                </div>
+            </div>
+
+            {% if quiz_attempts %}
+            <div class="profile-history-list" role="list">
+                {% for attempt in quiz_attempts %}
+                <article class="profile-history-item" role="listitem">
+                    <div>
+                        <p class="profile-history-item__eyebrow">Attempt {{ attempt.attempt_number }}</p>
+                        <h3 class="profile-history-item__score">Score {{ attempt.score }}</h3>
+                    </div>
+                    <time class="profile-history-item__date" datetime="{{ attempt.date_attempt|date:'c' }}">{{ attempt.date_attempt|date:'M d, Y H:i' }}</time>
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="profile-history-empty">
+                No saved quiz attempts yet. Finish a brain quiz round while logged in to see scores here.
+            </div>
+            {% endif %}
+        </article>
     </section>
 </section>
 {% endblock %}

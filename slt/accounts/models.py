@@ -17,3 +17,26 @@ class Account(models.Model):
 
     def __str__(self) -> str:
         return self.username
+
+
+class BrainQuizAttempt(models.Model):
+    username = models.ForeignKey(
+        Account,
+        to_field='username',
+        db_column='username',
+        on_delete=models.CASCADE,
+        related_name='brain_quiz_attempts',
+    )
+    attempt_number = models.PositiveIntegerField()
+    score = models.PositiveIntegerField(default=0)
+    date_attempt = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'brain_quiz_attempt'
+        ordering = ['-date_attempt']
+        constraints = [
+            models.UniqueConstraint(fields=['username', 'attempt_number'], name='unique_brain_attempt_per_user'),
+        ]
+
+    def __str__(self) -> str:
+        return f'{self.username_id} attempt {self.attempt_number}'

@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sharpen Your Brain{% endblock %}
+
+{% block body_class %}page--brain{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/sharpen_your_brain.css' %}">
+{% endblock %}
+
+{% block content %}
+<form class="visually-hidden" aria-hidden="true">
+    {% csrf_token %}
+</form>
+
+<section class="brain-hero" aria-label="Sharpen Your Brain page">
+    <article class="panel-surface panel-surface--hero brain-hero__copy">
+        <p class="eyebrow">Reaction quiz</p>
+        <h1 class="display-title">Launch an endless pop-up sign quiz and stay alive by answering faster than the timer drains.</h1>
+        <p class="lead-copy">Each round shows a random SignASL video with multiple choices. Correct answers refill part of the timer, wrong answers cut it down, and the drain speeds up the longer you survive.</p>
+        <div class="action-row">
+            <button class="button button--primary" type="button" id="brain-launch-quiz">Start Unlimited Quiz</button>
+        </div>
+    </article>
+
+    <aside class="panel-surface brain-hero__aside">
+        <p class="card-label">Rules</p>
+        <ul class="notes-list">
+            <li>The timer bar sits above the question box and never stops draining.</li>
+            <li>Correct answers refill a little and move you to the next question.</li>
+            <li>Wrong answers reduce the timer and make recovery harder over time.</li>
+        </ul>
+    </aside>
+</section>
+
+<section class="brain-grid">
+    <article class="panel-surface brain-card">
+        <p class="card-label">How it feels</p>
+        <h2>Study mode becomes a pressure round.</h2>
+        <p>The page stays calm until you start. Then the quiz appears as a centered modal, loops through unlimited questions, and ends only when the timer reaches zero.</p>
+    </article>
+
+    <article class="panel-surface brain-card">
+        <p class="card-label">Content source</p>
+        <h2>Randomized videos from the existing SignASL integration.</h2>
+        <p>The correct answer always matches the shown sign clip, while the other options act as distractors from the same curated quiz pool.</p>
+    </article>
+</section>
+
+<div class="quiz-modal" id="brain-quiz-modal" aria-hidden="true" data-quiz-url="{% url 'brain_quiz_question' %}" data-save-attempt-url="{% url 'brain_quiz_attempt_save' %}">
+    <div class="quiz-modal__backdrop" data-close-quiz="true"></div>
+    <section class="quiz-modal__dialog panel-surface" role="dialog" aria-modal="true" aria-labelledby="brain-quiz-title">
+        <button class="quiz-modal__close" type="button" id="brain-close-quiz" aria-label="Close quiz">Close</button>
+
+        <div class="quiz-start-screen" id="brain-start-screen">
+            <p class="card-label">Unlimited quiz</p>
+            <h2 id="brain-quiz-title">Start when you are ready.</h2>
+            <p>The timer begins at full, drains continuously, and accelerates as your answered count grows.</p>
+            <button class="button button--primary" type="button" id="brain-start-quiz">Begin round</button>
+        </div>
+
+        <div class="quiz-game" id="brain-quiz-game" hidden>
+            <div class="quiz-hud">
+                <div class="quiz-stat"><span>Score</span><strong id="brain-score">0</strong></div>
+                <div class="quiz-stat"><span>Answered</span><strong id="brain-answered">0</strong></div>
+                <div class="quiz-stat"><span>Speed</span><strong id="brain-speed">1.0x</strong></div>
+            </div>
+
+            <div class="quiz-timer" aria-label="Quiz timer">
+                <div class="quiz-timer__bar">
+                    <div class="quiz-timer__fill" id="brain-timer-fill"></div>
+                </div>
+                <div class="quiz-timer__meta">
+                    <span>Timer</span>
+                    <strong id="brain-timer-label">100%</strong>
+                </div>
+            </div>
+
+            <article class="quiz-question-box">
+                <div class="quiz-video-shell" id="brain-video-shell">
+                    <div class="quiz-video-shell__loading">Loading question...</div>
+                </div>
+
+                <div class="quiz-copy">
+                    <p class="card-label">Question</p>
+                    <h2 id="brain-question-prompt">What does this sign mean?</h2>
+                    <p class="quiz-feedback" id="brain-feedback">Choose the matching answer.</p>
+                </div>
+
+                <div class="quiz-options" id="brain-options"></div>
+            </article>
+        </div>
+
+        <div class="quiz-end-screen" id="brain-end-screen" hidden>
+            <p class="card-label">Time up</p>
+            <h2>Round finished.</h2>
+            <p id="brain-end-summary">You answered 0 questions.</p>
+            <div class="action-row">
+                <button class="button button--primary" type="button" id="brain-restart-quiz">Play again</button>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/sharpen_your_brain.js' %}"></script>
+{% endblock %}

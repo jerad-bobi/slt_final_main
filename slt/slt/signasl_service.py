@@ -1,7 +1,9 @@
 from functools import lru_cache
 import json
+import random
 import re
 from urllib.error import HTTPError, URLError
+from urllib.parse import quote
 from urllib.request import Request, urlopen
 
 from django.utils.text import slugify
@@ -10,6 +12,70 @@ from django.utils.text import slugify
 SIGNASL_BASE_URL = 'https://www.signasl.org'
 DICTIONARY_API_URL = 'https://api.dictionaryapi.dev/api/v2/entries/en'
 MAX_WORDS = 8
+QUIZ_CHOICES = 4
+QUIZ_TERMS = (
+    'hello',
+    'good',
+    'bad',
+    'please',
+    'sorry',
+    'thank you',
+    'help',
+    'friend',
+    'family',
+    'mother',
+    'father',
+    'brother',
+    'sister',
+    'teacher',
+    'student',
+    'school',
+    'book',
+    'read',
+    'write',
+    'learn',
+    'study',
+    'practice',
+    'work',
+    'play',
+    'home',
+    'water',
+    'food',
+    'eat',
+    'drink',
+    'apple',
+    'banana',
+    'orange',
+    'happy',
+    'sad',
+    'love',
+    'like',
+    'day',
+    'night',
+    'morning',
+    'today',
+    'tomorrow',
+    'week',
+    'month',
+    'year',
+    'time',
+    'name',
+    'question',
+    'answer',
+    'yes',
+    'no',
+    'stop',
+    'go',
+    'slow',
+    'fast',
+    'computer',
+    'phone',
+    'music',
+    'movie',
+    'car',
+    'travel',
+    'finish',
+)
 
 VIDEO_PATTERN = re.compile(
     r'<video[^>]*poster="(?P<poster>[^"]*)"[^>]*>\s*'
@@ -39,6 +105,19 @@ def _build_sequence(entries: list[dict]) -> list[dict]:
     ]
 
 
+def _format_quiz_label(term: str) -> str:
+    return _clean_text(term).title()
+
+
+@lru_cache(maxsize=256)
+def fetch_quiz_entry(term: str) -> dict:
+    slug = slugify(term)
+    result = fetch_sign_page(slug)
+    result['term'] = term
+    result['definition'] = fetch_definition(term)
+    return result
+
+
 @lru_cache(maxsize=256)
 def fetch_definition(term: str) -> str | None:
     normalized_term = _clean_text(term).lower()
@@ -52,7 +131,8 @@ def fetch_definition(term: str) -> str | None:
     if normalized_term.isdigit():
         return f'The number {normalized_term}.'
 
-    request = Request(f'{DICTIONARY_API_URL}/{normalized_term}', headers={'User-Agent': 'Mozilla/5.0'})
+    encoded_term = quote(normalized_term, safe='')
+    request = Request(f'{DICTIONARY_API_URL}/{encoded_term}', headers={'User-Agent': 'Mozilla/5.0'})
 
     try:
         payload = json.load(urlopen(request, timeout=20))
@@ -212,4 +292,53 @@ def lookup_text(text: str) -> dict:
         'entries': entries,
         'sequence': _build_sequence(entries),
         'truncated': truncated,
+    }
+
+
+def get_quiz_question() -> dict:
+    return get_quiz_question_from_terms(QUIZ_TERMS)
+
+
+def get_quiz_question_from_terms(terms: tuple[str, ...] | list[str]) -> dict:
+    terms = list(terms)
+    random.shuffle(terms)
+
+    correct_entry = None
+    correct_term = ''
+
+    for term in terms:
+        entry = fetch_quiz_entry(term)
+        if entry['found'] and entry['videos']:
+            correct_entry = entry
+            correct_term = term
+            break
+
+    if not correct_entry:
+        raise LookupError('No quiz entries available from SignASL.')
+
+    distractor_pool = [term for term in QUIZ_TERMS if term != correct_term]
+    distractor_terms = random.sample(distractor_pool, k=QUIZ_CHOICES - 1)
+    choice_terms = [correct_term, *distractor_terms]
+    random.shuffle(choice_terms)
+
+    primary_video = correct_entry['videos'][0]
+
+    return {
+        'prompt': 'What does this sign mean?',
+        'video': {
+            'src': primary_video['src'],
+            'poster': primary_video['poster'],
+            'provider': primary_video.get('provider') or 'SignASL',
+            'page_url': correct_entry['page_url'],
+        },
+        'choices': [
+            {
+                'value': choice,
+                'label': _format_quiz_label(choice),
+            }
+            for choice in choice_terms
+        ],
+        'correct_answer': correct_term,
+        'correct_label': _format_quiz_label(correct_term),
+        'definition': correct_entry.get('definition') or '',
     }

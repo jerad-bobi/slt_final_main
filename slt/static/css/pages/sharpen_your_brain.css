@@ -1,0 +1,321 @@
+.brain-hero,
+.brain-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+    gap: 22px;
+}
+
+.brain-hero {
+    margin-bottom: 22px;
+}
+
+.brain-hero__aside,
+.brain-card {
+    padding: 28px;
+}
+
+.brain-card h2 {
+    margin: 0 0 12px;
+    font-family: var(--font-display);
+    font-size: 1.85rem;
+}
+
+.brain-card p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+.quiz-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: none;
+}
+
+.quiz-modal--visible {
+    display: block;
+}
+
+.quiz-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(17, 24, 22, 0.62);
+    backdrop-filter: blur(8px);
+}
+
+.quiz-modal__dialog {
+    position: relative;
+    width: min(760px, calc(100% - 20px));
+    margin: 2vh auto;
+    padding: 18px;
+    max-height: 96vh;
+    overflow: auto;
+}
+
+.quiz-modal__close {
+    position: sticky;
+    top: 0;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 14px;
+    border: 1px solid rgba(35, 49, 45, 0.12);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.86);
+    cursor: pointer;
+}
+
+.quiz-start-screen,
+.quiz-end-screen {
+    display: grid;
+    gap: 12px;
+    padding-top: 6px;
+}
+
+.quiz-start-screen[hidden],
+.quiz-game[hidden],
+.quiz-end-screen[hidden] {
+    display: none !important;
+}
+
+.quiz-start-screen h2,
+.quiz-end-screen h2,
+.quiz-question-box h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+}
+
+.quiz-start-screen p,
+.quiz-end-screen p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+.quiz-hud {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin: 8px 0 12px;
+}
+
+.quiz-stat {
+    padding: 12px 14px;
+    border: 1px solid rgba(35, 49, 45, 0.08);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.quiz-stat span {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.quiz-stat strong {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+}
+
+.quiz-timer {
+    margin-bottom: 12px;
+}
+
+.quiz-timer__bar {
+    height: 14px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(35, 49, 45, 0.1);
+}
+
+.quiz-timer__fill {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #d18f52, var(--accent));
+    transition: width 0.12s linear, background 0.2s ease;
+}
+
+.quiz-timer__fill--danger {
+    background: linear-gradient(90deg, #d6654d, #9f2f22);
+}
+
+.quiz-timer__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 0.92rem;
+}
+
+.quiz-question-box {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    gap: 14px;
+    padding: 16px;
+    border: 1px solid rgba(35, 49, 45, 0.08);
+    border-radius: 22px;
+    background: rgba(255, 250, 242, 0.76);
+}
+
+.quiz-video-shell {
+    display: grid;
+    gap: 8px;
+}
+
+.quiz-video-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 180px;
+    gap: 10px;
+    align-items: start;
+}
+
+.quiz-video-shell__loading {
+    display: grid;
+    place-items: center;
+    min-height: 210px;
+    border: 1px dashed rgba(35, 49, 45, 0.16);
+    border-radius: 18px;
+    color: var(--muted);
+    font-size: 0.95rem;
+}
+
+.quiz-video {
+    width: 100%;
+    max-height: 220px;
+    border-radius: 18px;
+    background: #000;
+}
+
+.quiz-debug-answer {
+    display: grid;
+    gap: 8px;
+    padding: 12px;
+    border: 1px dashed rgba(181, 92, 59, 0.4);
+    border-radius: 16px;
+    background: rgba(240, 221, 201, 0.46);
+}
+
+.quiz-debug-answer__label {
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.quiz-debug-answer__value {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    line-height: 1.1;
+}
+
+.quiz-source-link {
+    color: var(--accent-deep);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.quiz-source-link:hover,
+.quiz-source-link:focus-visible {
+    text-decoration: underline;
+}
+
+.quiz-copy {
+    display: grid;
+    gap: 6px;
+}
+
+.quiz-feedback {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+}
+
+.quiz-feedback[data-tone='success'] {
+    color: var(--success);
+}
+
+.quiz-feedback[data-tone='danger'] {
+    color: #a13e33;
+}
+
+.quiz-feedback[data-tone='warning'] {
+    color: #8d5b1f;
+}
+
+.quiz-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.quiz-option {
+    min-height: 52px;
+    padding: 12px 14px;
+    border: 1px solid rgba(35, 49, 45, 0.12);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--text);
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.quiz-game {
+    display: grid;
+    gap: 0;
+}
+
+.quiz-question-main {
+    display: grid;
+    gap: 12px;
+}
+
+.quiz-option:hover,
+.quiz-option:focus-visible {
+    transform: translateY(-1px);
+    border-color: rgba(181, 92, 59, 0.32);
+}
+
+.quiz-option:disabled {
+    cursor: default;
+}
+
+.quiz-option--correct {
+    border-color: rgba(86, 122, 104, 0.4);
+    background: rgba(86, 122, 104, 0.18);
+}
+
+.quiz-option--wrong {
+    border-color: rgba(161, 62, 51, 0.4);
+    background: rgba(161, 62, 51, 0.14);
+}
+
+.quiz-modal-open {
+    overflow: hidden;
+}
+
+@media (max-width: 900px) {
+    .brain-hero,
+    .brain-grid,
+    .quiz-hud,
+    .quiz-question-box,
+    .quiz-video-row,
+    .quiz-options {
+        grid-template-columns: 1fr;
+    }
+
+    .quiz-modal__dialog {
+        margin: 2vh auto;
+    }
+}

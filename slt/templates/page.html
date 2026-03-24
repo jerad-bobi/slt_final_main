@@ -1,13 +1,26 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
+{% block body_class %}page--generic{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/page.css' %}">
+{% endblock %}
+
 {% block content %}
-<main class="hero-section page-content" aria-label="{{ page_title }} page">
-    <section class="content-panel">
-        <p class="page-label">⌛ Soon</p>
-        <h1 class="page-title">{{ page_title }}</h1>
-        <p class="page-description">{{ page_description }}</p>
-    </section>
-</main>
+<section class="generic-page" aria-label="{{ page_title }} page">
+    <article class="panel-surface panel-surface--hero generic-page__hero">
+        <p class="eyebrow">In progress</p>
+        <h1 class="display-title">{{ page_title }}</h1>
+        <p class="lead-copy">{{ page_description }}</p>
+    </article>
+
+    <article class="panel-surface generic-page__note">
+        <p class="card-label">What this page becomes next</p>
+        <h2>A placeholder with stronger presence.</h2>
+        <p>The redesign gives unfinished sections a proper template instead of leaving them visually empty. This keeps the whole website consistent while features are still being built.</p>
+    </article>
+</section>
 {% endblock %}

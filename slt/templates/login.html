@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login{% endblock %}
+
+{% block body_class %}page--login{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/login.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="auth-layout" aria-label="Login page">
+    <aside class="panel-surface auth-copy-card">
+        <p class="eyebrow">Sign in</p>
+        <h1 class="display-title">Welcome back to your study workspace.</h1>
+        <p class="lead-copy">The new template keeps the login path simple while giving the page a distinct visual identity instead of sharing generic account styling.</p>
+        <ul class="notes-list">
+            <li>Open your account page after authentication.</li>
+            <li>Return to practice or vocabulary search from the main navigation.</li>
+            <li>Future saved progress can connect to this same identity.</li>
+        </ul>
+    </aside>
+
+    <section class="panel-surface auth-form-card">
+        <div class="auth-form-card__intro">
+            <p class="card-label">Account login</p>
+            <h2>Enter your username and password.</h2>
+        </div>
+        <form method="post" class="auth-form">
+                {% csrf_token %}
+                {% if login_error %}
+                <p class="auth-error">{{ login_error }}</p>
+                {% endif %}
+                <label class="auth-field">
+                    <span>Username</span>
+                    {{ form.username }}
+                </label>
+                <label class="auth-field">
+                    <span>Password</span>
+                    {{ form.password }}
+                </label>
+                <button type="submit" class="button button--primary button--full">Login</button>
+            </form>
+        <p class="auth-switch">No account? <a href="{% url 'register' %}">Register</a></p>
+    </section>
+</section>
+{% endblock %}

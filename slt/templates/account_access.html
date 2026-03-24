@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Account{% endblock %}
+
+{% block body_class %}page--account-access{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/account_access.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="access-hero" aria-label="Account access page">
+    <div class="panel-surface panel-surface--hero access-hero__copy">
+        <p class="eyebrow">Account portal</p>
+        <h1 class="display-title">Use your account as the personal entrance to the redesigned study space.</h1>
+        <p class="lead-copy">This section now works like a quiet reception area: clear choices, less friction, and room for future saved progress.</p>
+    </div>
+
+    <aside class="panel-surface access-hero__aside">
+        <p class="card-label">Why sign in?</p>
+        <ul class="notes-list">
+            <li>Reach your About Me page without extra steps.</li>
+            <li>Prepare for future personalized learning history.</li>
+            <li>Keep one identity across practice sessions.</li>
+        </ul>
+    </aside>
+</section>
+
+<section class="access-grid">
+    <article class="panel-surface access-card access-card--primary">
+        <p class="card-label">Existing account</p>
+        <h2>Log in and continue where your profile begins.</h2>
+        <p>Use your current username and password to open the account area immediately.</p>
+        <a href="{% url 'login' %}" class="button button--primary">Login</a>
+    </article>
+
+    <article class="panel-surface access-card">
+        <p class="card-label">New here</p>
+        <h2>Create an account for a cleaner, personalized workspace.</h2>
+        <p>Register once so the profile area is ready when you want to extend the site with saved data later.</p>
+        <a href="{% url 'register' %}" class="button button--secondary">Register</a>
+    </article>
+</section>
+{% endblock %}

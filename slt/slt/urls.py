@@ -17,7 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from .views import about_me, home, learn_vocabularies, lets_practice, sharpen_your_brain
+from accounts.views import about_me, account_access, login_view, logout_view, register_view
+from .views import home, learn_vocabularies, lets_practice, sharpen_your_brain
 from .views import signasl_lookup
 
 urlpatterns = [
@@ -26,6 +27,10 @@ urlpatterns = [
     path('lets-practice/', lets_practice, name='lets_practice'),
     path('api/signasl-lookup/', signasl_lookup, name='signasl_lookup'),
     path('learn-vocabularies/', learn_vocabularies, name='learn_vocabularies'),
+    path('account/', account_access, name='account_access'),
+    path('register/', register_view, name='register'),
+    path('login/', login_view, name='login'),
+    path('logout/', logout_view, name='logout'),
     path('about-me/', about_me, name='about_me'),
     path('admin/', admin.site.urls),
 ]

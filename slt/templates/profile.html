@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Me{% endblock %}
+
+{% block body_class %}page--profile{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="profile-layout" aria-label="Profile page">
+    <article class="panel-surface panel-surface--hero profile-intro">
+        <p class="eyebrow">About Me</p>
+        <h1 class="display-title">Your personal account card now sits inside the same design system as the rest of the site.</h1>
+        <p class="lead-copy">This page is ready to grow into a real profile surface with saved goals, recent practice, and vocabulary history.</p>
+    </article>
+
+    <section class="panel-surface profile-card-shell">
+        <div class="profile-card">
+            <div class="profile-card__avatar">{{ account.username|first|upper }}</div>
+            <div class="profile-card__content">
+                <p class="profile-card__label">Username</p>
+                <h2 class="profile-card__name">{{ account.username }}</h2>
+                <p class="profile-card__meta">More profile fields can be added later.</p>
+            </div>
+        </div>
+        <a href="{% url 'logout' %}" class="button button--secondary">Logout</a>
+    </section>
+</section>
+{% endblock %}

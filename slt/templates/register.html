@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register{% endblock %}
+
+{% block body_class %}page--register{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/register.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="register-layout" aria-label="Register page">
+    <aside class="panel-surface register-copy-card">
+        <p class="eyebrow">Create account</p>
+        <h1 class="display-title">Set up your profile entry point for the refreshed website.</h1>
+        <p class="lead-copy">The registration view now has its own template and stylesheet so the page feels distinct while still matching the wider theme.</p>
+        <ul class="notes-list">
+            <li>Use a unique username and email address.</li>
+            <li>Your account becomes the base for future saved study data.</li>
+            <li>Validation messages stay close to the related field.</li>
+        </ul>
+    </aside>
+
+    <section class="panel-surface register-form-card">
+        <div class="register-form-card__intro">
+            <p class="card-label">Account details</p>
+            <h2>Fill the fields below to continue.</h2>
+        </div>
+        <form method="post" class="auth-form auth-form--register">
+                {% csrf_token %}
+                <label class="auth-field">
+                    <span>Real Name</span>
+                    {{ form.real_name }}
+                    {% if form.real_name.errors %}<small class="auth-error">{{ form.real_name.errors|join:', ' }}</small>{% endif %}
+                </label>
+                <label class="auth-field">
+                    <span>Username</span>
+                    {{ form.username }}
+                    {% if form.username.errors %}<small class="auth-error">{{ form.username.errors|join:', ' }}</small>{% endif %}
+                </label>
+                <label class="auth-field">
+                    <span>Email</span>
+                    {{ form.email }}
+                    {% if form.email.errors %}<small class="auth-error">{{ form.email.errors|join:', ' }}</small>{% endif %}
+                </label>
+                <label class="auth-field">
+                    <span>Password</span>
+                    {{ form.password }}
+                    {% if form.password.errors %}<small class="auth-error">{{ form.password.errors|join:', ' }}</small>{% endif %}
+                </label>
+                <label class="auth-field">
+                    <span>Confirm Password</span>
+                    {{ form.confirm_password }}
+                    {% if form.confirm_password.errors %}<small class="auth-error">{{ form.confirm_password.errors|join:', ' }}</small>{% endif %}
+                </label>
+                {% if form.non_field_errors %}
+                <p class="auth-error auth-error--full">{{ form.non_field_errors|join:', ' }}</p>
+                {% endif %}
+                <button type="submit" class="button button--primary button--full">Register</button>
+            </form>
+        <p class="auth-switch">Already have an account? <a href="{% url 'login' %}">Login</a></p>
+    </section>
+</section>
+{% endblock %}

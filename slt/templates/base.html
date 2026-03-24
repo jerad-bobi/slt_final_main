@@ -5,19 +5,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Sign Language Translator{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    {% block extra_css %}{% endblock %}
 </head>
-<body>
-    <div class="page-shell">
-        {% block content %}{% endblock %}
+<body class="site-body {% block body_class %}{% endblock %}">
+    <div class="site-backdrop" aria-hidden="true">
+        <span class="site-glow site-glow--one"></span>
+        <span class="site-glow site-glow--two"></span>
+        <span class="site-grid"></span>
+    </div>
 
-        <nav class="bottom-nav" aria-label="Primary navigation">
-            <a href="{% url 'sharpen_your_brain' %}" class="nav-button{% if active_page == 'brain' %} nav-button--active{% endif %}">Sharpen Your Brain</a>
-            <a href="{% url 'lets_practice' %}" class="nav-button{% if active_page == 'practice' %} nav-button--active{% endif %}">Let's Practice</a>
-            <a href="{% url 'home' %}" class="nav-button{% if active_page == 'home' %} nav-button--active{% endif %}">Home</a>
-            <a href="{% url 'learn_vocabularies' %}" class="nav-button{% if active_page == 'vocabularies' %} nav-button--active{% endif %}">Learn Vocabularies</a>
-            <a href="{% url 'about_me' %}" class="nav-button{% if active_page == 'about' %} nav-button--active{% endif %}">About Me</a>
+    <div class="site-shell">
+        <header class="site-header">
+            <a href="{% url 'home' %}" class="site-brand" aria-label="Go to homepage">
+                <span class="site-brand__mark">SL</span>
+                <span>
+                    <span class="site-brand__eyebrow">Sign Language Studio</span>
+                    <strong class="site-brand__name">Handspeak Atlas</strong>
+                </span>
+            </a>
+
+            <div class="site-header__copy">
+                <p class="site-header__label">Visual learning workspace</p>
+                <p class="site-header__text">Practice sign language with a calmer, editorial interface built for lookup, rehearsal, and profile access.</p>
+            </div>
+        </header>
+
+        <nav class="site-nav" aria-label="Primary navigation">
+            <a href="{% url 'home' %}" class="site-nav__link{% if active_page == 'home' %} site-nav__link--active{% endif %}">Home</a>
+            <a href="{% url 'sharpen_your_brain' %}" class="site-nav__link{% if active_page == 'brain' %} site-nav__link--active{% endif %}">Sharpen Your Brain</a>
+            <a href="{% url 'lets_practice' %}" class="site-nav__link{% if active_page == 'practice' %} site-nav__link--active{% endif %}">Let's Practice</a>
+            <a href="{% url 'learn_vocabularies' %}" class="site-nav__link{% if active_page == 'vocabularies' %} site-nav__link--active{% endif %}">Learn Vocabularies</a>
+            <a href="{% url 'about_me' %}" class="site-nav__link{% if active_page == 'about' %} site-nav__link--active{% endif %}">About Me</a>
         </nav>
+
+        <main class="page-frame">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="site-footer">
+            <p>Handspeak Atlas blends search, practice, and account access in one responsive workspace.</p>
+        </footer>
     </div>
 
     {% block scripts %}{% endblock %}

@@ -3,15 +3,39 @@
 
 {% block title %}Let's Practice{% endblock %}
 
-{% block content %}
-<main class="hero-section practice-page" aria-label="Let's Practice translator page">
-    <section class="practice-header">
-        <p class="page-label">Practice ↔</p>
-        <h1 class="page-title">Text ↔ Sign practice.</h1>
-        <p class="page-description">One screen. Two directions.</p>
-    </section>
+{% block body_class %}page--practice{% endblock %}
 
-    <section class="translator-shell" data-mode="text-to-sign" data-lookup-url="{% url 'signasl_lookup' %}">
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/lets_practice.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="practice-hero" aria-label="Let's Practice translator page">
+    <div class="panel-surface panel-surface--hero practice-hero__copy">
+        <p class="eyebrow">Practice studio</p>
+        <h1 class="display-title">Rehearse text and sign in one workspace without switching pages.</h1>
+        <p class="lead-copy">The translator now sits inside a studio-style layout with clearer mode states, a stronger preview area, and companion guidance for both directions.</p>
+    </div>
+
+    <aside class="panel-surface practice-hero__notes">
+        <p class="card-label">Session guide</p>
+        <ul class="notes-list">
+            <li>Type text to assemble sign playback in sequence.</li>
+            <li>Switch modes when you want the camera preview instead.</li>
+            <li>Use the refreshed layout as a rehearsal surface, not a form.</li>
+        </ul>
+    </aside>
+</section>
+
+<section class="translator-shell panel-surface" data-mode="text-to-sign" data-lookup-url="{% url 'signasl_lookup' %}">
+    <div class="translator-shell__header">
+        <div>
+            <p class="card-label">Dual mode translator</p>
+            <h2>Choose a direction and stay in flow.</h2>
+        </div>
+        <span class="status-pill">Interactive</span>
+    </div>
+
         <div class="translator-topbar">
             <div class="translator-mode" id="mode-label">Text → Sign</div>
             <button class="swap-button" type="button" id="swap-translator" aria-label="Switch translator direction">
@@ -31,7 +55,7 @@
                     <textarea
                         id="practice-text-input"
                         class="translator-textarea"
-                        placeholder="Type here to practice text to sign..."
+                        placeholder="Type a word, phrase, or short sentence..."
                     ></textarea>
                 </div>
 
@@ -42,7 +66,7 @@
                             <video id="camera-preview" class="camera-preview" autoplay muted playsinline></video>
                             <div id="camera-status" class="camera-status">Switch to Sign → Text.</div>
                         </div>
-                        <button class="capture-button" type="button" id="restart-camera">↻ Camera</button>
+                        <button class="capture-button" type="button" id="restart-camera">Restart camera</button>
                     </div>
                 </div>
             </article>
@@ -66,8 +90,11 @@
                 </div>
             </article>
         </div>
-    </section>
-</main>
+
+    <div class="translator-footer-note">
+        <p>Text-to-sign is live. Camera mode currently prepares the capture stage and will support recognition workflows when available.</p>
+    </div>
+</section>
 {% endblock %}
 
 {% block scripts %}

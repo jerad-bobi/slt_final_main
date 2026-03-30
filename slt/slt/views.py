@@ -1,7 +1,7 @@
 import json
 
 from django.db import transaction
-from django.db.models import Max
+from django.db.models import Count, Max
 from django.http import JsonResponse
 from django.shortcuts import render
 
@@ -117,6 +117,46 @@ def brain_quiz_attempt_save(request):
             'attempt_number': attempt.attempt_number,
             'score': attempt.score,
             'date_attempt': attempt.date_attempt.isoformat(),
+        }
+    )
+
+
+def brain_quiz_leaderboard(request):
+    leaderboard_rows = list(
+        BrainQuizAttempt.objects.values('username__username')
+        .annotate(
+            best_score=Max('score'),
+            total_attempts=Count('id'),
+            last_attempt=Max('date_attempt'),
+        )
+        .order_by('-best_score', 'last_attempt', 'username__username')
+    )
+
+    top_rows = []
+    current_account = _get_current_account(request)
+    current_account_entry = None
+
+    for index, row in enumerate(leaderboard_rows, start=1):
+        entry = {
+            'rank': index,
+            'username': row['username__username'],
+            'best_score': row['best_score'] or 0,
+            'total_attempts': row['total_attempts'],
+            'last_attempt': row['last_attempt'].isoformat() if row['last_attempt'] else None,
+        }
+
+        if index <= 10:
+            top_rows.append(entry)
+
+        if current_account and entry['username'] == current_account.username:
+            current_account_entry = entry
+
+    return JsonResponse(
+        {
+            'entries': top_rows,
+            'total_players': len(leaderboard_rows),
+            'updated_at': leaderboard_rows[0]['last_attempt'].isoformat() if leaderboard_rows and leaderboard_rows[0]['last_attempt'] else None,
+            'current_account': current_account_entry,
         }
     )
 

@@ -48,6 +48,42 @@
     </article>
 </section>
 
+<section class="brain-leaderboard-layout" aria-label="Global quiz leaderboard">
+    <article class="panel-surface brain-leaderboard-card" data-leaderboard-url="{% url 'brain_quiz_leaderboard' %}">
+        <div class="brain-leaderboard-card__header">
+            <div>
+                <p class="card-label">Global leaderboard</p>
+                <h2>Best saved quiz scores across every account.</h2>
+            </div>
+            <div class="brain-leaderboard-card__meta">
+                <span class="status-pill" id="brain-leaderboard-status">Live refresh every 15s</span>
+                <p id="brain-leaderboard-updated">Waiting for leaderboard...</p>
+            </div>
+        </div>
+
+        <div class="brain-leaderboard-summary" id="brain-leaderboard-summary">
+            <div class="brain-leaderboard-summary__item">
+                <span>Players ranked</span>
+                <strong id="brain-leaderboard-player-count">0</strong>
+            </div>
+            <div class="brain-leaderboard-summary__item">
+                <span>Your position</span>
+                <strong id="brain-leaderboard-current-rank">Unranked</strong>
+            </div>
+        </div>
+
+        <div class="brain-leaderboard-table" id="brain-leaderboard-table" role="list">
+            <div class="brain-leaderboard-empty">Loading leaderboard...</div>
+        </div>
+    </article>
+
+    <aside class="panel-surface brain-card brain-card--aside">
+        <p class="card-label">How ranking works</p>
+        <h2>Each account is ranked by its best saved round.</h2>
+        <p>The table updates automatically and also refreshes right after a score is stored, so new personal bests appear without reloading the page.</p>
+    </aside>
+</section>
+
 <div class="quiz-modal" id="brain-quiz-modal" aria-hidden="true" data-quiz-url="{% url 'brain_quiz_question' %}" data-save-attempt-url="{% url 'brain_quiz_attempt_save' %}">
     <div class="quiz-modal__backdrop" data-close-quiz="true"></div>
     <section class="quiz-modal__dialog panel-surface" role="dialog" aria-modal="true" aria-labelledby="brain-quiz-title">

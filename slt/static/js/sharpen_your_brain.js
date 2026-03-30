@@ -16,6 +16,12 @@ const brainFeedback = document.getElementById('brain-feedback');
 const brainVideoShell = document.getElementById('brain-video-shell');
 const brainOptions = document.getElementById('brain-options');
 const brainEndSummary = document.getElementById('brain-end-summary');
+const brainLeaderboardCard = document.querySelector('[data-leaderboard-url]');
+const brainLeaderboardTable = document.getElementById('brain-leaderboard-table');
+const brainLeaderboardStatus = document.getElementById('brain-leaderboard-status');
+const brainLeaderboardUpdated = document.getElementById('brain-leaderboard-updated');
+const brainLeaderboardPlayerCount = document.getElementById('brain-leaderboard-player-count');
+const brainLeaderboardCurrentRank = document.getElementById('brain-leaderboard-current-rank');
 
 const brainQuizState = {
     active: false,
@@ -35,6 +41,13 @@ const brainQuizState = {
 
 const brainQuizApiUrl = brainQuizModal ? brainQuizModal.dataset.quizUrl || '' : '';
 const brainQuizAttemptSaveUrl = brainQuizModal ? brainQuizModal.dataset.saveAttemptUrl || '' : '';
+const brainLeaderboardApiUrl = brainLeaderboardCard ? brainLeaderboardCard.dataset.leaderboardUrl || '' : '';
+const brainLeaderboardRefreshIntervalMs = 15000;
+
+const brainLeaderboardState = {
+    pollTimerId: 0,
+    loading: false,
+};
 
 function openBrainQuizModal() {
     if (!brainQuizModal) {
@@ -158,6 +171,7 @@ async function saveBrainQuizAttempt() {
         const payload = await response.json();
         brainQuizState.scoreSaveStatus = ` Saved as attempt ${payload.attempt_number} for ${payload.username}.`;
         showBrainEndScreen();
+        void loadBrainLeaderboard();
     } catch (error) {
         brainQuizState.scoreSaved = false;
         brainQuizState.scoreSaveStatus = ' Score could not be saved.';
@@ -480,6 +494,129 @@ function getCsrfToken() {
     return csrfCookie ? decodeURIComponent(csrfCookie.split('=')[1]) : '';
 }
 
+function escapeBrainUsername(value) {
+    return escapeBrainHtml(String(value || 'Anonymous'));
+}
+
+function setBrainLeaderboardStatus(message, isError = false) {
+    if (!brainLeaderboardStatus) {
+        return;
+    }
+
+    brainLeaderboardStatus.textContent = message;
+    brainLeaderboardStatus.classList.toggle('brain-leaderboard-status--error', isError);
+}
+
+function renderBrainLeaderboardEmpty(message) {
+    if (!brainLeaderboardTable) {
+        return;
+    }
+
+    brainLeaderboardTable.innerHTML = `<div class="brain-leaderboard-empty">${escapeBrainHtml(message)}</div>`;
+}
+
+function renderBrainLeaderboard(payload) {
+    if (!brainLeaderboardTable || !brainLeaderboardPlayerCount || !brainLeaderboardCurrentRank || !brainLeaderboardUpdated) {
+        return;
+    }
+
+    const entries = Array.isArray(payload.entries) ? payload.entries : [];
+    brainLeaderboardPlayerCount.textContent = String(payload.total_players || 0);
+
+    if (payload.current_account && Number.isFinite(payload.current_account.rank)) {
+        brainLeaderboardCurrentRank.textContent = `#${payload.current_account.rank}`;
+    } else {
+        brainLeaderboardCurrentRank.textContent = 'Unranked';
+    }
+
+    if (payload.updated_at) {
+        const updatedAt = new Date(payload.updated_at);
+        brainLeaderboardUpdated.textContent = Number.isNaN(updatedAt.getTime())
+            ? 'Updated recently'
+            : `Updated ${updatedAt.toLocaleString()}`;
+    } else {
+        brainLeaderboardUpdated.textContent = 'No saved scores yet';
+    }
+
+    if (!entries.length) {
+        renderBrainLeaderboardEmpty('No saved rounds yet. Finish a quiz while logged in to claim the first rank.');
+        return;
+    }
+
+    brainLeaderboardTable.innerHTML = entries.map((entry) => {
+        const isCurrent = payload.current_account && payload.current_account.username === entry.username;
+        const lastAttemptText = entry.last_attempt ? new Date(entry.last_attempt).toLocaleDateString() : 'No date';
+
+        return `
+            <article class="brain-leaderboard-row${isCurrent ? ' brain-leaderboard-row--current' : ''}" role="listitem">
+                <div class="brain-leaderboard-rank">#${entry.rank}</div>
+                <div class="brain-leaderboard-name">
+                    <strong>${escapeBrainUsername(entry.username)}</strong>
+                    <span>${isCurrent ? 'Your best saved round' : 'Global player'}</span>
+                </div>
+                <div class="brain-leaderboard-stat">
+                    <strong>${entry.best_score}</strong>
+                    <span>Best score</span>
+                </div>
+                <div class="brain-leaderboard-stat">
+                    <strong>${entry.total_attempts}</strong>
+                    <span>Attempts · ${escapeBrainHtml(lastAttemptText)}</span>
+                </div>
+            </article>
+        `;
+    }).join('');
+}
+
+async function loadBrainLeaderboard() {
+    if (!brainLeaderboardApiUrl || brainLeaderboardState.loading) {
+        return;
+    }
+
+    brainLeaderboardState.loading = true;
+
+    try {
+        setBrainLeaderboardStatus('Refreshing leaderboard');
+
+        const response = await fetch(brainLeaderboardApiUrl, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Leaderboard request failed');
+        }
+
+        const payload = await response.json();
+        renderBrainLeaderboard(payload);
+        setBrainLeaderboardStatus('Live refresh every 15s');
+    } catch (error) {
+        setBrainLeaderboardStatus('Leaderboard unavailable', true);
+
+        if (brainLeaderboardTable && !brainLeaderboardTable.children.length) {
+            renderBrainLeaderboardEmpty('Leaderboard could not be loaded right now.');
+        }
+    } finally {
+        brainLeaderboardState.loading = false;
+    }
+}
+
+function startBrainLeaderboardPolling() {
+    if (!brainLeaderboardApiUrl) {
+        return;
+    }
+
+    void loadBrainLeaderboard();
+
+    if (brainLeaderboardState.pollTimerId) {
+        window.clearInterval(brainLeaderboardState.pollTimerId);
+    }
+
+    brainLeaderboardState.pollTimerId = window.setInterval(() => {
+        void loadBrainLeaderboard();
+    }, brainLeaderboardRefreshIntervalMs);
+}
+
 if (brainLaunchButton) {
     brainLaunchButton.addEventListener('click', openBrainQuizModal);
 }
@@ -504,6 +641,8 @@ if (brainStartButton) {
 if (brainRestartButton) {
     brainRestartButton.addEventListener('click', startBrainQuiz);
 }
+
+startBrainLeaderboardPolling();
 
 window.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && brainQuizModal && brainQuizModal.classList.contains('quiz-modal--visible')) {

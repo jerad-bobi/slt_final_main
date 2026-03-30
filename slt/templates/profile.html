@@ -49,13 +49,30 @@
                 <div>
                     <p class="card-label">Brain quiz attempts</p>
                     <h2>Saved scores</h2>
+                    <p id="profile-filter-caption" class="profile-history-card__caption" data-attempt-count="{{ quiz_attempts|length }}">Showing {{ quiz_attempts|length }} saved score{{ quiz_attempts|length|pluralize }} sorted by {{ selected_score_filter_label|lower }}.</p>
+                </div>
+                <div class="profile-filter-form" aria-label="Filter saved scores">
+                    <label class="profile-filter-form__label" for="score-filter">Sort by</label>
+                    <div class="profile-filter-form__controls">
+                        <select id="score-filter" name="score_filter" class="profile-filter-form__select">
+                            {% for option in score_filter_options %}
+                            <option value="{{ option.value }}" {% if selected_score_filter == option.value %}selected{% endif %}>{{ option.label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
             </div>
 
             {% if quiz_attempts %}
-            <div class="profile-history-list" role="list">
+            <div id="profile-history-list" class="profile-history-list" role="list">
                 {% for attempt in quiz_attempts %}
-                <article class="profile-history-item" role="listitem">
+                <article
+                    class="profile-history-item"
+                    role="listitem"
+                    data-attempt-number="{{ attempt.attempt_number }}"
+                    data-score="{{ attempt.score }}"
+                    data-date-attempt="{{ attempt.date_attempt|date:'U' }}"
+                >
                     <div>
                         <p class="profile-history-item__eyebrow">Attempt {{ attempt.attempt_number }}</p>
                         <h3 class="profile-history-item__score">Score {{ attempt.score }}</h3>
@@ -72,4 +89,8 @@
         </article>
     </section>
 </section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/profile.js' %}"></script>
 {% endblock %}

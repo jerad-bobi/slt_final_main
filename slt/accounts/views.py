@@ -10,6 +10,25 @@ from .models import Account, BrainQuizAttempt
 
 SESSION_ACCOUNT_ID = 'account_id'
 
+SCORE_FILTERS = {
+    'newest': {
+        'label': 'Newest first',
+        'ordering': ('-date_attempt', '-attempt_number'),
+    },
+    'oldest': {
+        'label': 'Oldest first',
+        'ordering': ('date_attempt', 'attempt_number'),
+    },
+    'highest': {
+        'label': 'Highest score',
+        'ordering': ('-score', '-date_attempt', '-attempt_number'),
+    },
+    'lowest': {
+        'label': 'Lowest score',
+        'ordering': ('score', '-date_attempt', '-attempt_number'),
+    },
+}
+
 
 def _get_current_account(request: HttpRequest) -> Account | None:
     account_id = request.session.get(SESSION_ACCOUNT_ID)
@@ -115,8 +134,21 @@ def about_me(request: HttpRequest) -> HttpResponse:
         return redirect('account_access')
 
     _touch_account(account)
-    attempts = list(account.brain_quiz_attempts.all())
-    best_score = account.brain_quiz_attempts.aggregate(best_score=Max('score'))['best_score']
+    attempts_queryset = account.brain_quiz_attempts.all()
+    selected_score_filter = request.GET.get('score_filter', 'newest').strip().lower()
+    if selected_score_filter not in SCORE_FILTERS:
+        selected_score_filter = 'newest'
+
+    selected_filter = SCORE_FILTERS[selected_score_filter]
+    attempts = list(attempts_queryset.order_by(*selected_filter['ordering']))
+    best_score = attempts_queryset.aggregate(best_score=Max('score'))['best_score']
+    filter_options = [
+        {
+            'value': key,
+            'label': config['label'],
+        }
+        for key, config in SCORE_FILTERS.items()
+    ]
 
     return render(
         request,
@@ -125,7 +157,10 @@ def about_me(request: HttpRequest) -> HttpResponse:
             'active_page': 'about',
             'account': account,
             'quiz_attempts': attempts,
-            'quiz_attempt_count': len(attempts),
+            'quiz_attempt_count': attempts_queryset.count(),
             'best_score': best_score,
+            'selected_score_filter': selected_score_filter,
+            'selected_score_filter_label': selected_filter['label'],
+            'score_filter_options': filter_options,
         },
     )

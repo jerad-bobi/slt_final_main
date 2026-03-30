@@ -91,6 +91,10 @@
 }
 
 .profile-history-card__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
     margin-bottom: 18px;
 }
 
@@ -98,6 +102,43 @@
     margin: 0;
     font-family: var(--font-display);
     font-size: 2rem;
+}
+
+.profile-history-card__caption {
+    margin: 8px 0 0;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.profile-filter-form {
+    display: grid;
+    gap: 8px;
+    min-width: min(100%, 260px);
+}
+
+.profile-filter-form__label {
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.profile-filter-form__controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.profile-filter-form__select {
+    flex: 1;
+    min-width: 0;
+    padding: 11px 14px;
+    border: 1px solid rgba(35, 49, 45, 0.12);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.82);
+    color: var(--text);
+    font: inherit;
 }
 
 .profile-history-list {
@@ -151,6 +192,12 @@
     .profile-history-item {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .profile-history-card__header,
+    .profile-filter-form__controls {
+        flex-direction: column;
+        align-items: stretch;
     }
 
     .profile-history-item__date {

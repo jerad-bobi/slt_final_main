@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.password_validation import validate_password
 
 from .models import Account
 
@@ -35,6 +36,12 @@ class RegisterForm(forms.ModelForm):
 
         if password and confirm_password and password != confirm_password:
             self.add_error('confirm_password', 'Passwords do not match.')
+
+        if password and not self.errors.get('password'):
+            try:
+                validate_password(password)
+            except forms.ValidationError as error:
+                self.add_error('password', error)
 
         return cleaned_data
 

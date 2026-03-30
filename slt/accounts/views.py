@@ -1,4 +1,8 @@
+import time
+
+from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password
+from django.core.cache import cache
 from django.db.models import Max
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
@@ -28,6 +32,64 @@ SCORE_FILTERS = {
         'ordering': ('score', '-date_attempt', '-attempt_number'),
     },
 }
+
+
+def _get_client_ip(request: HttpRequest) -> str:
+    forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', '')
+    if forwarded_for:
+        return forwarded_for.split(',')[0].strip()[:128]
+
+    return request.META.get('REMOTE_ADDR', 'unknown')[:128]
+
+
+def _get_login_cache_key(prefix: str, username: str, client_ip: str) -> str:
+    normalized_username = username.strip().lower() or 'unknown'
+    normalized_ip = client_ip.strip().lower() or 'unknown'
+    return f'accounts:{prefix}:{normalized_ip}:{normalized_username}'
+
+
+def _format_lockout_message(remaining_seconds: int) -> str:
+    if remaining_seconds >= 60:
+        remaining_minutes = max(1, (remaining_seconds + 59) // 60)
+        return f'Too many login attempts. Try again in about {remaining_minutes} minute(s).'
+    return f'Too many login attempts. Try again in {remaining_seconds} second(s).'
+
+
+def _get_login_lockout_seconds(username: str, client_ip: str) -> int:
+    lock_key = _get_login_cache_key('login_lock', username, client_ip)
+    locked_until = cache.get(lock_key)
+    if not locked_until:
+        return 0
+
+    remaining_seconds = max(0, int(locked_until - time.time()))
+    if remaining_seconds <= 0:
+        cache.delete(lock_key)
+        return 0
+
+    return remaining_seconds
+
+
+def _record_failed_login(username: str, client_ip: str) -> None:
+    failures_key = _get_login_cache_key('login_failures', username, client_ip)
+    lock_key = _get_login_cache_key('login_lock', username, client_ip)
+    lockout_seconds = max(1, settings.LOGIN_LOCKOUT_SECONDS)
+    max_attempts = max(1, settings.LOGIN_MAX_ATTEMPTS)
+
+    failed_attempts = cache.get(failures_key, 0) + 1
+    cache.set(failures_key, failed_attempts, timeout=lockout_seconds)
+
+    if failed_attempts >= max_attempts:
+        cache.set(lock_key, time.time() + lockout_seconds, timeout=lockout_seconds)
+        cache.delete(failures_key)
+
+
+def _clear_failed_login_state(username: str, client_ip: str) -> None:
+    cache.delete_many(
+        [
+            _get_login_cache_key('login_failures', username, client_ip),
+            _get_login_cache_key('login_lock', username, client_ip),
+        ]
+    )
 
 
 def _get_current_account(request: HttpRequest) -> Account | None:
@@ -74,6 +136,7 @@ def register_view(request: HttpRequest) -> HttpResponse:
         new_account.password = make_password(form.cleaned_data['password'])
         new_account.last_accessed = timezone.now()
         new_account.save()
+        request.session.cycle_key()
         request.session[SESSION_ACCOUNT_ID] = new_account.id
         return redirect('about_me')
 
@@ -99,6 +162,20 @@ def login_view(request: HttpRequest) -> HttpResponse:
     if request.method == 'POST' and form.is_valid():
         username = form.cleaned_data['username'].strip()
         password = form.cleaned_data['password']
+        client_ip = _get_client_ip(request)
+        lockout_seconds = _get_login_lockout_seconds(username, client_ip)
+
+        if lockout_seconds:
+            login_error = _format_lockout_message(lockout_seconds)
+            return render(
+                request,
+                'login.html',
+                {
+                    'active_page': 'about',
+                    'form': form,
+                    'login_error': login_error,
+                },
+            )
 
         try:
             account = Account.objects.get(username__iexact=username)
@@ -106,9 +183,12 @@ def login_view(request: HttpRequest) -> HttpResponse:
             account = None
 
         if not account or not check_password(password, account.password):
+            _record_failed_login(username, client_ip)
             login_error = 'Invalid username or password.'
         else:
+            _clear_failed_login_state(username, client_ip)
             _touch_account(account)
+            request.session.cycle_key()
             request.session[SESSION_ACCOUNT_ID] = account.id
             return redirect('about_me')
 
@@ -124,7 +204,7 @@ def login_view(request: HttpRequest) -> HttpResponse:
 
 
 def logout_view(request: HttpRequest) -> HttpResponse:
-    request.session.pop(SESSION_ACCOUNT_ID, None)
+    request.session.flush()
     return redirect('account_access')
 
 

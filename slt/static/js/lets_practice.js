@@ -581,6 +581,7 @@ async function runSignPrediction() {
         const predictedSign = String(payload.predicted_sign || '').replaceAll('_', ' ').trim();
         const confidence = Number(payload.confidence || 0);
         const confidencePercent = Math.round(confidence * 100);
+        const candidates = Array.isArray(payload.candidates) ? payload.candidates : [];
 
         if (!predictedSign) {
             renderSignTextOutput('Sign not recognized yet.', 'warning');
@@ -589,6 +590,27 @@ async function runSignPrediction() {
 
         if (confidence < 0.38) {
             renderSignTextOutput(`Uncertain sign (${confidencePercent}%). Hold the sign steady.`, 'warning');
+            return;
+        }
+
+        const candidateLabels = candidates
+            .map((item) => {
+                const sign = String(item.sign || '').replaceAll('_', ' ').trim();
+                const percent = Number.isFinite(Number(item.confidence_percent))
+                    ? Math.round(Number(item.confidence_percent))
+                    : Math.round((Number(item.confidence || 0) || 0) * 100);
+
+                if (!sign) {
+                    return '';
+                }
+
+                return `${sign} (${percent}%)`;
+            })
+            .filter((label) => label.length)
+            .slice(0, 3);
+
+        if (candidateLabels.length > 1) {
+            renderSignTextOutput(candidateLabels.join(' | '), 'success');
             return;
         }
 

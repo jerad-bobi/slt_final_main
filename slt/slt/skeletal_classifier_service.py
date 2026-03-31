@@ -16,6 +16,9 @@ _MODEL_CACHE: dict[str, object] = {
     'signature': None,
     'model': None,
 }
+_MIN_CANDIDATE_CONFIDENCE = 0.20
+_CANDIDATE_CONFIDENCE_RATIO = 0.55
+_MAX_CANDIDATES = 3
 
 
 def normalize_landmarks(landmarks: list[dict]) -> list[float] | None:
@@ -29,6 +32,22 @@ def normalize_landmarks(landmarks: list[dict]) -> list[float] | None:
 
     wrist_x, wrist_y = points[0]
     centered = [(x - wrist_x, y - wrist_y) for x, y in points]
+
+    # Normalize in-plane rotation so equivalent poses are closer in feature space.
+    middle_mcp_x, middle_mcp_y = centered[9]
+    if abs(middle_mcp_x) > 1e-9 or abs(middle_mcp_y) > 1e-9:
+        current_angle = math.atan2(middle_mcp_y, middle_mcp_x)
+        target_angle = -math.pi / 2
+        rotation = target_angle - current_angle
+        cos_theta = math.cos(rotation)
+        sin_theta = math.sin(rotation)
+        centered = [
+            (
+                (x * cos_theta) - (y * sin_theta),
+                (x * sin_theta) + (y * cos_theta),
+            )
+            for x, y in centered
+        ]
 
     max_radius = max(math.hypot(x, y) for x, y in centered)
     if max_radius <= 1e-9:
@@ -184,8 +203,12 @@ def predict_sign_from_landmarks(landmarks: list[dict]) -> dict:
             'png_only_samples': 0,
         }
 
-    best_sign = None
-    best_distance = None
+    # Evaluate both the original and mirrored hand to reduce handedness mismatch.
+    mirrored_feature_vector = feature_vector.copy()
+    for point_index in range(0, len(mirrored_feature_vector), 2):
+        mirrored_feature_vector[point_index] = -mirrored_feature_vector[point_index]
+
+    scored_matches = []
 
     for sign_name, descriptor in centroids.items():
         centroid = descriptor['vector']
@@ -193,9 +216,23 @@ def predict_sign_from_landmarks(landmarks: list[dict]) -> dict:
             continue
 
         distance = math.sqrt(sum((a - b) ** 2 for a, b in zip(feature_vector, centroid)))
-        if best_distance is None or distance < best_distance:
-            best_distance = distance
-            best_sign = sign_name
+        mirrored_distance = math.sqrt(sum((a - b) ** 2 for a, b in zip(mirrored_feature_vector, centroid)))
+        distance = min(distance, mirrored_distance)
+
+        scored_matches.append(
+            {
+                'sign': sign_name,
+                'distance': distance,
+                'samples': int(descriptor.get('samples', 0) or 0),
+            }
+        )
+
+    scored_matches.sort(key=lambda item: item['distance'])
+
+    best_match = scored_matches[0] if scored_matches else None
+
+    best_sign = best_match['sign'] if best_match else None
+    best_distance = best_match['distance'] if best_match else None
 
     if best_sign is None or best_distance is None:
         return {
@@ -208,12 +245,37 @@ def predict_sign_from_landmarks(landmarks: list[dict]) -> dict:
     confidence = 1.0 / (1.0 + best_distance)
     best_descriptor = centroids.get(best_sign, {})
 
+    candidate_predictions = []
+    for match in scored_matches:
+        candidate_confidence = 1.0 / (1.0 + float(match['distance']))
+        candidate_predictions.append(
+            {
+                'sign': match['sign'],
+                'distance': match['distance'],
+                'confidence': candidate_confidence,
+                'confidence_percent': round(candidate_confidence * 100),
+                'samples': match['samples'],
+            }
+        )
+
+    high_confidence_candidates = [
+        candidate
+        for candidate in candidate_predictions
+        if candidate['confidence'] >= _MIN_CANDIDATE_CONFIDENCE
+        and candidate['confidence'] >= confidence * _CANDIDATE_CONFIDENCE_RATIO
+    ][: _MAX_CANDIDATES]
+
+    if not high_confidence_candidates:
+        high_confidence_candidates = candidate_predictions[:1]
+
     return {
         'ok': True,
         'predicted_sign': best_sign,
         'confidence': confidence,
+        'confidence_percent': round(confidence * 100),
         'distance': best_distance,
         'classes': model.get('classes', 0),
         'samples': model.get('samples', 0),
         'matched_samples': best_descriptor.get('samples', 0),
+        'candidates': high_confidence_candidates,
     }

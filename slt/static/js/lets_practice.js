@@ -37,6 +37,8 @@ let activeCaptureSignName = '';
 let currentHandLandmarks = [];
 let signPredictionIntervalId = 0;
 let signPredictionBusy = false;
+let captureCountdownIntervalId = 0;
+let captureCountdownRemaining = 0;
 
 const modes = {
     'text-to-sign': {
@@ -115,6 +117,10 @@ function setCameraStatusMessage(message, persist = false) {
 
 function setSkeletalCaptureMode(active) {
     const shouldActivate = Boolean(active);
+    if (!shouldActivate) {
+        stopCaptureCountdown();
+    }
+
     if (shouldActivate) {
         if (!captureSignNameInput) {
             setCameraStatusMessage('Sign name input unavailable.', true);
@@ -504,6 +510,36 @@ function stopSignPredictionLoop() {
     signPredictionBusy = false;
 }
 
+function stopCaptureCountdown() {
+    if (captureCountdownIntervalId) {
+        window.clearInterval(captureCountdownIntervalId);
+        captureCountdownIntervalId = 0;
+    }
+
+    captureCountdownRemaining = 0;
+}
+
+function startCaptureCountdown() {
+    if (captureCountdownIntervalId || skeletalCaptureSaving) {
+        return;
+    }
+
+    captureCountdownRemaining = 3;
+    setCameraStatusMessage(`Capturing ${activeCaptureSignName} in ${captureCountdownRemaining}...`, true);
+
+    captureCountdownIntervalId = window.setInterval(async () => {
+        captureCountdownRemaining -= 1;
+
+        if (captureCountdownRemaining > 0) {
+            setCameraStatusMessage(`Capturing ${activeCaptureSignName} in ${captureCountdownRemaining}...`, true);
+            return;
+        }
+
+        stopCaptureCountdown();
+        await captureSkeletalFrame();
+    }, 1000);
+}
+
 async function runSignPrediction() {
     if (signPredictionBusy || !predictUrl || !translatorShell || translatorShell.dataset.mode !== 'sign-to-text') {
         return;
@@ -641,7 +677,7 @@ function handleSkeletalCaptureKeydown(event) {
     }
 
     event.preventDefault();
-    void captureSkeletalFrame();
+    startCaptureCountdown();
 }
 
 function buildCameraErrorMessage(error) {

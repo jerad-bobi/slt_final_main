@@ -10,34 +10,17 @@
 {% endblock %}
 
 {% block content %}
-<section class="vocab-hero" aria-label="Learn vocabularies page">
-	<div class="panel-surface panel-surface--hero vocab-hero__copy">
-		<p class="eyebrow">Vocabulary finder</p>
-		<h1 class="display-title">Search one English word and jump straight to the matching sign reference.</h1>
-		<p class="lead-copy">The page is now split into a focused search stage and a companion notes panel, so the lookup flow feels clearer on desktop and mobile.</p>
-		<div class="chip-row">
-			<span class="info-chip">Words</span>
-			<span class="info-chip">Letters</span>
-			<span class="info-chip">Numbers</span>
-		</div>
-	</div>
-
-	<aside class="panel-surface vocab-hero__aside">
-		<p class="card-label">Lookup notes</p>
-		<ul class="notes-list">
-			<li>Search accepts a single token to keep results precise.</li>
-			<li>Number searches can play as a compiled sequence.</li>
-			<li>Results open the original entry when a deeper source is useful.</li>
-		</ul>
-	</aside>
+<section class="vocab-hero panel-surface panel-surface--hero" aria-label="Learn vocabularies page">
+	<p class="eyebrow">Vocabulary</p>
+	<h1 class="display-title">Search for a word, letter, or number.</h1>
+	<p class="lead-copy">Enter a query to load sign results.</p>
 </section>
 
 <section class="dictionary-layout">
 	<section class="dictionary-shell panel-surface" data-lookup-url="{% url 'signasl_lookup' %}">
 		<div class="dictionary-shell__intro">
 			<div>
-				<p class="card-label">Search desk</p>
-				<h2>Run a quick sign lookup.</h2>
+				<h2>Sign lookup</h2>
 			</div>
 			<span class="status-pill">Live source</span>
 		</div>
@@ -68,12 +51,6 @@
 			</div>
 		</section>
 	</section>
-
-	<aside class="panel-surface dictionary-sidecard">
-		<p class="card-label">Best use</p>
-		<h2>Use this page as your reference shelf.</h2>
-		<p>When you need a quick answer, search here first, then move into practice once you know the sign or spelling pattern you want to rehearse.</p>
-	</aside>
 </section>
 {% endblock %}
 

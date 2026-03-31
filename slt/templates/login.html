@@ -11,21 +11,11 @@
 
 {% block content %}
 <section class="auth-layout" aria-label="Login page">
-    <aside class="panel-surface auth-copy-card">
-        <p class="eyebrow">Sign in</p>
-        <h1 class="display-title">Welcome back to your study workspace.</h1>
-        <p class="lead-copy">The new template keeps the login path simple while giving the page a distinct visual identity instead of sharing generic account styling.</p>
-        <ul class="notes-list">
-            <li>Open your account page after authentication.</li>
-            <li>Return to practice or vocabulary search from the main navigation.</li>
-            <li>Future saved progress can connect to this same identity.</li>
-        </ul>
-    </aside>
-
     <section class="panel-surface auth-form-card">
         <div class="auth-form-card__intro">
-            <p class="card-label">Account login</p>
-            <h2>Enter your username and password.</h2>
+            <p class="eyebrow">Sign in</p>
+            <h1 class="display-title">Login</h1>
+            <p class="lead-copy">Enter your username and password.</p>
         </div>
         <form method="post" class="auth-form">
                 {% csrf_token %}

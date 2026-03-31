@@ -1,22 +1,15 @@
 .register-layout {
-    display: grid;
-    grid-template-columns: minmax(280px, 0.92fr) minmax(0, 1.08fr);
-    gap: 22px;
+    display: block;
 }
 
-.register-copy-card,
 .register-form-card {
     padding: 30px;
+    max-width: 760px;
+    margin: 0 auto;
 }
 
 .register-form-card__intro {
     margin-bottom: 18px;
-}
-
-.register-form-card__intro h2 {
-    margin: 0;
-    font-family: var(--font-display);
-    font-size: 2rem;
 }
 
 .auth-form--register {
@@ -30,7 +23,6 @@
 }
 
 @media (max-width: 900px) {
-    .register-layout,
     .auth-form--register {
         grid-template-columns: 1fr;
     }

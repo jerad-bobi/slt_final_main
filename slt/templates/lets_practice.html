@@ -10,28 +10,16 @@
 {% endblock %}
 
 {% block content %}
-<section class="practice-hero" aria-label="Let's Practice translator page">
-    <div class="panel-surface panel-surface--hero practice-hero__copy">
-        <p class="eyebrow">Practice studio</p>
-        <h1 class="display-title">Rehearse text and sign in one workspace without switching pages.</h1>
-        <p class="lead-copy">The translator now sits inside a studio-style layout with clearer mode states, a stronger preview area, and companion guidance for both directions.</p>
-    </div>
-
-    <aside class="panel-surface practice-hero__notes">
-        <p class="card-label">Session guide</p>
-        <ul class="notes-list">
-            <li>Type text to assemble sign playback in sequence.</li>
-            <li>Switch modes when you want the camera preview instead.</li>
-            <li>Use the refreshed layout as a rehearsal surface, not a form.</li>
-        </ul>
-    </aside>
+<section class="practice-hero panel-surface panel-surface--hero" aria-label="Let's Practice translator page">
+    <p class="eyebrow">Practice</p>
+    <h1 class="display-title">Translate between text and sign.</h1>
+    <p class="lead-copy">Choose a mode, then use the workspace below.</p>
 </section>
 
 <section class="translator-shell panel-surface" data-mode="text-to-sign" data-lookup-url="{% url 'signasl_lookup' %}">
     <div class="translator-shell__header">
         <div>
-            <p class="card-label">Dual mode translator</p>
-            <h2>Choose a direction and stay in flow.</h2>
+            <h2>Translator</h2>
         </div>
         <span class="status-pill">Interactive</span>
     </div>
@@ -64,6 +52,7 @@
                         <div class="capture-mark">Cam ●</div>
                         <div class="camera-preview-shell">
                             <video id="camera-preview" class="camera-preview" autoplay muted playsinline></video>
+                            <canvas id="camera-overlay" class="camera-overlay" aria-hidden="true"></canvas>
                             <div id="camera-status" class="camera-status">Switch to Sign → Text.</div>
                         </div>
                         <button class="capture-button" type="button" id="restart-camera">Restart camera</button>
@@ -91,12 +80,12 @@
             </article>
         </div>
 
-    <div class="translator-footer-note">
-        <p>Text-to-sign is live. Camera mode currently prepares the capture stage and will support recognition workflows when available.</p>
-    </div>
 </section>
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 <script src="{% static 'js/lets_practice.js' %}"></script>
 {% endblock %}

@@ -1,22 +1,15 @@
 .auth-layout {
-    display: grid;
-    grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr);
-    gap: 22px;
+    display: block;
 }
 
-.auth-copy-card,
 .auth-form-card {
     padding: 30px;
+    max-width: 640px;
+    margin: 0 auto;
 }
 
 .auth-form-card__intro {
     margin-bottom: 18px;
-}
-
-.auth-form-card__intro h2 {
-    margin: 0;
-    font-family: var(--font-display);
-    font-size: 2rem;
 }
 
 .auth-switch {
@@ -25,10 +18,4 @@
 
 .auth-switch a {
     color: var(--accent-deep);
-}
-
-@media (max-width: 900px) {
-    .auth-layout {
-        grid-template-columns: 1fr;
-    }
 }

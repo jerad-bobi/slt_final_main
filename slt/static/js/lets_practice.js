@@ -8,9 +8,11 @@ const targetHint = document.getElementById('target-hint');
 const textInput = document.getElementById('practice-text-input');
 const signPreview = document.getElementById('sign-preview');
 const cameraPreview = document.getElementById('camera-preview');
+const cameraOverlay = document.getElementById('camera-overlay');
 const cameraStatus = document.getElementById('camera-status');
 const restartCameraButton = document.getElementById('restart-camera');
 const lookupUrl = translatorShell ? translatorShell.dataset.lookupUrl : '';
+const overlayContext = cameraOverlay ? cameraOverlay.getContext('2d') : null;
 
 let lookupTimeoutId = null;
 let activeLookupController = null;
@@ -19,6 +21,10 @@ let compiledSequence = [];
 let compiledIndex = 0;
 let cameraStream = null;
 let cameraRequestId = 0;
+let handTracker = null;
+let handTrackerReady = false;
+let handTrackingFrameId = 0;
+let handTrackingBusy = false;
 
 const modes = {
     'text-to-sign': {
@@ -238,6 +244,10 @@ async function startCameraPreview() {
             });
         }
 
+        syncCameraOverlaySize();
+        await ensureHandTracker();
+        startHandTrackingLoop();
+
         cameraStatus.textContent = '';
         cameraStatus.classList.remove('camera-status--visible');
     } catch (error) {
@@ -247,6 +257,8 @@ async function startCameraPreview() {
 }
 
 function stopCameraPreview() {
+    stopHandTrackingLoop();
+
     if (cameraPreview) {
         cameraPreview.pause();
         cameraPreview.srcObject = null;
@@ -262,6 +274,120 @@ function stopCameraPreview() {
         cameraStatus.textContent = 'Switch to Sign → Text.';
         cameraStatus.classList.add('camera-status--visible');
     }
+}
+
+async function ensureHandTracker() {
+    if (handTrackerReady || typeof window.Hands !== 'function') {
+        return;
+    }
+
+    handTracker = new window.Hands({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
+    });
+
+    handTracker.setOptions({
+        maxNumHands: 2,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.6,
+        minTrackingConfidence: 0.5,
+    });
+
+    handTracker.onResults(handleHandTrackingResults);
+    handTrackerReady = true;
+}
+
+function startHandTrackingLoop() {
+    if (!cameraPreview || !handTrackerReady || handTrackingFrameId) {
+        return;
+    }
+
+    const processFrame = async () => {
+        if (!cameraPreview || translatorShell?.dataset.mode !== 'sign-to-text') {
+            handTrackingFrameId = 0;
+            return;
+        }
+
+        if (cameraPreview.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && !handTrackingBusy) {
+            handTrackingBusy = true;
+
+            try {
+                syncCameraOverlaySize();
+                await handTracker.send({ image: cameraPreview });
+            } catch (error) {
+                clearCameraOverlay();
+            } finally {
+                handTrackingBusy = false;
+            }
+        }
+
+        handTrackingFrameId = window.requestAnimationFrame(processFrame);
+    };
+
+    handTrackingFrameId = window.requestAnimationFrame(processFrame);
+}
+
+function stopHandTrackingLoop() {
+    if (handTrackingFrameId) {
+        window.cancelAnimationFrame(handTrackingFrameId);
+        handTrackingFrameId = 0;
+    }
+
+    handTrackingBusy = false;
+    clearCameraOverlay();
+}
+
+function syncCameraOverlaySize() {
+    if (!cameraOverlay || !cameraPreview) {
+        return;
+    }
+
+    const width = cameraPreview.videoWidth || cameraPreview.clientWidth;
+    const height = cameraPreview.videoHeight || cameraPreview.clientHeight;
+
+    if (!width || !height) {
+        return;
+    }
+
+    if (cameraOverlay.width !== width) {
+        cameraOverlay.width = width;
+    }
+
+    if (cameraOverlay.height !== height) {
+        cameraOverlay.height = height;
+    }
+}
+
+function clearCameraOverlay() {
+    if (!cameraOverlay || !overlayContext) {
+        return;
+    }
+
+    overlayContext.clearRect(0, 0, cameraOverlay.width, cameraOverlay.height);
+}
+
+function handleHandTrackingResults(results) {
+    if (!overlayContext || !cameraOverlay) {
+        return;
+    }
+
+    overlayContext.save();
+    overlayContext.clearRect(0, 0, cameraOverlay.width, cameraOverlay.height);
+
+    const landmarkSets = results.multiHandLandmarks || [];
+    for (const landmarks of landmarkSets) {
+        window.drawConnectors(overlayContext, landmarks, window.HAND_CONNECTIONS, {
+            color: '#ffc857',
+            lineWidth: 3,
+        });
+        window.drawLandmarks(overlayContext, landmarks, {
+            color: '#fff8e7',
+            fillColor: '#f96f5d',
+            lineWidth: 1,
+            radius: 4,
+        });
+    }
+
+    overlayContext.restore();
 }
 
 function buildCameraErrorMessage(error) {
@@ -350,6 +476,7 @@ if (restartCameraButton) {
 }
 
 window.addEventListener('beforeunload', stopCameraPreview);
+window.addEventListener('resize', syncCameraOverlaySize);
 
 setMode('text-to-sign');
 renderEmptyState();

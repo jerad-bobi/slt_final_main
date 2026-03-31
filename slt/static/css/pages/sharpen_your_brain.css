@@ -1,35 +1,10 @@
-.brain-hero,
-.brain-grid,
 .brain-leaderboard-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
-    gap: 22px;
+    display: block;
 }
 
 .brain-hero,
 .brain-leaderboard-layout {
     margin-bottom: 22px;
-}
-
-.brain-hero__aside,
-.brain-card {
-    padding: 28px;
-}
-
-.brain-card--aside {
-    align-content: start;
-}
-
-.brain-card h2 {
-    margin: 0 0 12px;
-    font-family: var(--font-display);
-    font-size: 1.85rem;
-}
-
-.brain-card p {
-    margin: 0;
-    color: var(--muted);
-    line-height: 1.7;
 }
 
 .brain-leaderboard-card {
@@ -432,9 +407,6 @@
 }
 
 @media (max-width: 900px) {
-    .brain-hero,
-    .brain-grid,
-    .brain-leaderboard-layout,
     .quiz-hud,
     .quiz-question-box,
     .quiz-video-row,

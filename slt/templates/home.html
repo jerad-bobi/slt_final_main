@@ -10,78 +10,32 @@
 {% endblock %}
 
 {% block content %}
-<section class="home-hero" aria-label="Homepage content">
-	<div class="home-hero__copy panel-surface panel-surface--hero">
-		<p class="eyebrow">Sign fluency, redesigned</p>
-		<h1 class="display-title">A quieter interface for learning signs, searching vocabulary, and tracking your practice rhythm.</h1>
-		<p class="lead-copy">The new theme treats the website like a study desk instead of a dashboard: warm colors, clearer structure, and focused paths into each tool.</p>
-		<div class="action-row">
-			<a href="{% url 'lets_practice' %}" class="button button--primary">Open Practice Studio</a>
-			<a href="{% url 'learn_vocabularies' %}" class="button button--secondary">Search Vocabulary</a>
-		</div>
-		<div class="metric-strip" aria-label="Platform highlights">
-			<div class="metric-pill">
-				<span class="metric-pill__value">2</span>
-				<span class="metric-pill__label">interactive tools</span>
-			</div>
-			<div class="metric-pill">
-				<span class="metric-pill__value">1</span>
-				<span class="metric-pill__label">account hub</span>
-			</div>
-			<div class="metric-pill">
-				<span class="metric-pill__value">24/7</span>
-				<span class="metric-pill__label">self-paced access</span>
-			</div>
-		</div>
+<section class="home-hero panel-surface panel-surface--hero" aria-label="Homepage content">
+	<p class="eyebrow">Sign fluency</p>
+	<h1 class="display-title">Learn, practice, and check sign vocabulary from one place.</h1>
+	<p class="lead-copy">Choose a tool and go straight to it.</p>
+	<div class="action-row">
+		<a href="{% url 'lets_practice' %}" class="button button--primary">Open Practice</a>
+		<a href="{% url 'learn_vocabularies' %}" class="button button--secondary">Search Vocabulary</a>
 	</div>
-
-	<aside class="home-hero__visual panel-surface panel-surface--contrast">
-		<p class="card-label">Study flow</p>
-		<div class="story-stack">
-			<article class="story-card story-card--accent">
-				<h2>Lookup first</h2>
-				<p>Search one word, number, or letter and preview the sign result immediately.</p>
-			</article>
-			<article class="story-card">
-				<h2>Practice next</h2>
-				<p>Switch between text-to-sign and sign-to-text rehearsal inside one focused workspace.</p>
-			</article>
-			<article class="story-card">
-				<h2>Keep going</h2>
-				<p>Use your account page as the personal anchor for future saved progress and study history.</p>
-			</article>
-		</div>
-	</aside>
 </section>
 
 <section class="home-grid" aria-label="Homepage sections">
-	<article class="feature-panel panel-surface">
-		<p class="card-label">Paths</p>
-		<h2>Choose the kind of session you want.</h2>
-		<div class="feature-list">
-			<a href="{% url 'sharpen_your_brain' %}" class="feature-link">
-				<strong>Sharpen Your Brain</strong>
-				<span>Warm-up drills and future memory exercises.</span>
-			</a>
-			<a href="{% url 'lets_practice' %}" class="feature-link">
-				<strong>Let's Practice</strong>
-				<span>Text and sign rehearsal in a single interactive canvas.</span>
-			</a>
-			<a href="{% url 'learn_vocabularies' %}" class="feature-link">
-				<strong>Learn Vocabularies</strong>
-				<span>Quick search for sign references without leaving the site.</span>
-			</a>
-		</div>
-	</article>
-
-	<article class="feature-panel panel-surface">
-		<p class="card-label">Method</p>
-		<h2>Built like a guided notebook.</h2>
-		<ol class="timeline-list">
-			<li>Start with a clear page objective instead of a crowded screen.</li>
-			<li>Use one tool at a time with stronger spacing and clearer hierarchy.</li>
-			<li>Return to your account area for identity and future persistence.</li>
-		</ol>
-	</article>
+	<a href="{% url 'sharpen_your_brain' %}" class="feature-link panel-surface">
+		<strong>Sharpen Your Brain</strong>
+		<span>Start the quiz.</span>
+	</a>
+	<a href="{% url 'lets_practice' %}" class="feature-link panel-surface">
+		<strong>Let's Practice</strong>
+		<span>Use the translator.</span>
+	</a>
+	<a href="{% url 'learn_vocabularies' %}" class="feature-link panel-surface">
+		<strong>Learn Vocabularies</strong>
+		<span>Run a sign lookup.</span>
+	</a>
+	<a href="{% url 'account_access' %}" class="feature-link panel-surface">
+		<strong>Account</strong>
+		<span>Login, register, or view your profile.</span>
+	</a>
 </section>
 {% endblock %}

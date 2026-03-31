@@ -11,43 +11,22 @@
 
 {% block content %}
 <section class="profile-layout" aria-label="Profile page">
-    <article class="panel-surface panel-surface--hero profile-intro">
-        <p class="eyebrow">About Me</p>
-        <h1 class="display-title">Your personal account card now sits inside the same design system as the rest of the site.</h1>
-        <p class="lead-copy">This page now includes your saved brain quiz history so each finished round has a visible record.</p>
-    </article>
-
     <section class="panel-surface profile-card-shell">
         <div class="profile-card">
             <div class="profile-card__avatar">{{ account.username|first|upper }}</div>
             <div class="profile-card__content">
-                <p class="profile-card__label">Username</p>
+                <p class="profile-card__label">About Me</p>
                 <h2 class="profile-card__name">{{ account.username }}</h2>
-                <p class="profile-card__meta">More profile fields can be added later.</p>
+                <p class="profile-card__meta">Quiz attempts: {{ quiz_attempt_count }}{% if best_score is not None %} · Best score: {{ best_score }}{% endif %}</p>
             </div>
         </div>
         <a href="{% url 'logout' %}" class="button button--secondary">Logout</a>
     </section>
 
     <section class="profile-history-grid">
-        <article class="panel-surface profile-summary-card">
-            <p class="card-label">Quiz summary</p>
-            <div class="profile-summary-stats">
-                <div class="profile-summary-stat">
-                    <span>Total attempts</span>
-                    <strong>{{ quiz_attempt_count }}</strong>
-                </div>
-                <div class="profile-summary-stat">
-                    <span>Best score</span>
-                    <strong>{% if best_score is not None %}{{ best_score }}{% else %}0{% endif %}</strong>
-                </div>
-            </div>
-        </article>
-
         <article class="panel-surface profile-history-card">
             <div class="profile-history-card__header">
                 <div>
-                    <p class="card-label">Brain quiz attempts</p>
                     <h2>Saved scores</h2>
                     <p id="profile-filter-caption" class="profile-history-card__caption" data-attempt-count="{{ quiz_attempts|length }}">Showing {{ quiz_attempts|length }} saved score{{ quiz_attempts|length|pluralize }} sorted by {{ selected_score_filter_label|lower }}.</p>
                 </div>

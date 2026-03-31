@@ -40,3 +40,20 @@ class BrainQuizAttempt(models.Model):
 
     def __str__(self) -> str:
         return f'{self.username_id} attempt {self.attempt_number}'
+
+
+class SkeletalSignSample(models.Model):
+    sign_name = models.CharField(max_length=64)
+    sign_folder = models.CharField(max_length=64)
+    filename = models.CharField(max_length=255, blank=True)
+    image_png = models.BinaryField()
+    feature_vector = models.JSONField()
+    source = models.CharField(max_length=32, default='capture')
+    captured_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'skeletal_sign_sample'
+        ordering = ['-captured_at']
+
+    def __str__(self) -> str:
+        return f'{self.sign_folder} sample {self.id}'

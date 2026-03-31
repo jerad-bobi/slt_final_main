@@ -10,13 +10,17 @@
 {% endblock %}
 
 {% block content %}
+<form class="visually-hidden" aria-hidden="true">
+    {% csrf_token %}
+</form>
+
 <section class="practice-hero panel-surface panel-surface--hero" aria-label="Let's Practice translator page">
     <p class="eyebrow">Practice</p>
     <h1 class="display-title">Translate between text and sign.</h1>
     <p class="lead-copy">Choose a mode, then use the workspace below.</p>
 </section>
 
-<section class="translator-shell panel-surface" data-mode="text-to-sign" data-lookup-url="{% url 'signasl_lookup' %}">
+<section class="translator-shell panel-surface" data-mode="text-to-sign" data-lookup-url="{% url 'signasl_lookup' %}" data-capture-url="{% url 'save_skeletal_hand_capture' %}" data-predict-url="{% url 'predict_skeletal_sign' %}">
     <div class="translator-shell__header">
         <div>
             <h2>Translator</h2>
@@ -55,7 +59,21 @@
                             <canvas id="camera-overlay" class="camera-overlay" aria-hidden="true"></canvas>
                             <div id="camera-status" class="camera-status">Switch to Sign → Text.</div>
                         </div>
-                        <button class="capture-button" type="button" id="restart-camera">Restart camera</button>
+                        <div class="capture-sign-name-row">
+                            <label for="capture-sign-name" class="capture-sign-name-label">Sign name</label>
+                            <input
+                                id="capture-sign-name"
+                                class="capture-sign-name-input"
+                                type="text"
+                                placeholder="Example: Hello"
+                                autocomplete="off"
+                                maxlength="64"
+                            >
+                        </div>
+                        <div class="capture-controls">
+                            <button class="capture-button" type="button" id="restart-camera">Restart camera</button>
+                            <button class="capture-button" type="button" id="toggle-capture-mode">Start skeletal capture</button>
+                        </div>
                     </div>
                 </div>
             </article>

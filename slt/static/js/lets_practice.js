@@ -7,11 +7,16 @@ const targetTitle = document.getElementById('target-title');
 const targetHint = document.getElementById('target-hint');
 const textInput = document.getElementById('practice-text-input');
 const signPreview = document.getElementById('sign-preview');
+const signTextOutput = document.getElementById('sign-text-output');
 const cameraPreview = document.getElementById('camera-preview');
 const cameraOverlay = document.getElementById('camera-overlay');
 const cameraStatus = document.getElementById('camera-status');
 const restartCameraButton = document.getElementById('restart-camera');
+const toggleCaptureModeButton = document.getElementById('toggle-capture-mode');
+const captureSignNameInput = document.getElementById('capture-sign-name');
 const lookupUrl = translatorShell ? translatorShell.dataset.lookupUrl : '';
+const captureUrl = translatorShell ? translatorShell.dataset.captureUrl || '' : '';
+const predictUrl = translatorShell ? translatorShell.dataset.predictUrl || '' : '';
 const overlayContext = cameraOverlay ? cameraOverlay.getContext('2d') : null;
 
 let lookupTimeoutId = null;
@@ -25,6 +30,13 @@ let handTracker = null;
 let handTrackerReady = false;
 let handTrackingFrameId = 0;
 let handTrackingBusy = false;
+let skeletalCaptureActive = false;
+let skeletalCaptureSaving = false;
+let lastDetectedHandCount = 0;
+let activeCaptureSignName = '';
+let currentHandLandmarks = [];
+let signPredictionIntervalId = 0;
+let signPredictionBusy = false;
 
 const modes = {
     'text-to-sign': {
@@ -65,8 +77,82 @@ function setMode(nextMode) {
 
     if (nextMode === 'sign-to-text') {
         void startCameraPreview();
+        startSignPredictionLoop();
     } else {
+        setSkeletalCaptureMode(false);
+        stopSignPredictionLoop();
         stopCameraPreview();
+        renderSignTextOutput('Text output.', 'idle');
+    }
+}
+
+function renderSignTextOutput(message, tone = 'idle') {
+    if (!signTextOutput) {
+        return;
+    }
+
+    signTextOutput.textContent = message;
+    signTextOutput.dataset.tone = tone;
+}
+
+function setCameraStatusMessage(message, persist = false) {
+    if (!cameraStatus) {
+        return;
+    }
+
+    cameraStatus.textContent = message;
+    cameraStatus.classList.add('camera-status--visible');
+
+    if (!persist) {
+        window.setTimeout(() => {
+            if (!skeletalCaptureActive && cameraStatus.textContent === message) {
+                cameraStatus.classList.remove('camera-status--visible');
+                cameraStatus.textContent = '';
+            }
+        }, 1400);
+    }
+}
+
+function setSkeletalCaptureMode(active) {
+    const shouldActivate = Boolean(active);
+    if (shouldActivate) {
+        if (!captureSignNameInput) {
+            setCameraStatusMessage('Sign name input unavailable.', true);
+            return;
+        }
+
+        const enteredName = captureSignNameInput.value.trim();
+        if (!enteredName.length) {
+            setCameraStatusMessage('Enter a sign name before starting capture.', true);
+            captureSignNameInput.focus();
+            return;
+        }
+
+        activeCaptureSignName = enteredName;
+        captureSignNameInput.disabled = true;
+    } else {
+        activeCaptureSignName = '';
+        if (captureSignNameInput) {
+            captureSignNameInput.disabled = false;
+        }
+    }
+
+    skeletalCaptureActive = shouldActivate;
+
+    if (toggleCaptureModeButton) {
+        toggleCaptureModeButton.textContent = skeletalCaptureActive ? 'Stop skeletal capture' : 'Start skeletal capture';
+        toggleCaptureModeButton.classList.toggle('capture-button--active', skeletalCaptureActive);
+    }
+
+    if (!cameraStatus) {
+        return;
+    }
+
+    if (skeletalCaptureActive) {
+        setCameraStatusMessage(`Capture mode on for "${activeCaptureSignName}". Press Space to save.`, true);
+    } else if (translatorShell && translatorShell.dataset.mode === 'sign-to-text' && cameraStream) {
+        cameraStatus.textContent = '';
+        cameraStatus.classList.remove('camera-status--visible');
     }
 }
 
@@ -248,8 +334,12 @@ async function startCameraPreview() {
         await ensureHandTracker();
         startHandTrackingLoop();
 
-        cameraStatus.textContent = '';
-        cameraStatus.classList.remove('camera-status--visible');
+        if (skeletalCaptureActive) {
+            setCameraStatusMessage(`Capture mode on for "${activeCaptureSignName}". Press Space to save.`, true);
+        } else {
+            cameraStatus.textContent = '';
+            cameraStatus.classList.remove('camera-status--visible');
+        }
     } catch (error) {
         cameraStatus.textContent = buildCameraErrorMessage(error);
         cameraStatus.classList.add('camera-status--visible');
@@ -258,6 +348,7 @@ async function startCameraPreview() {
 
 function stopCameraPreview() {
     stopHandTrackingLoop();
+    setSkeletalCaptureMode(false);
 
     if (cameraPreview) {
         cameraPreview.pause();
@@ -269,6 +360,8 @@ function stopCameraPreview() {
     }
 
     cameraStream = null;
+    lastDetectedHandCount = 0;
+    currentHandLandmarks = [];
 
     if (cameraStatus) {
         cameraStatus.textContent = 'Switch to Sign → Text.';
@@ -374,6 +467,8 @@ function handleHandTrackingResults(results) {
     overlayContext.clearRect(0, 0, cameraOverlay.width, cameraOverlay.height);
 
     const landmarkSets = results.multiHandLandmarks || [];
+    lastDetectedHandCount = landmarkSets.length;
+    currentHandLandmarks = landmarkSets.length ? landmarkSets[0] : [];
     for (const landmarks of landmarkSets) {
         window.drawConnectors(overlayContext, landmarks, window.HAND_CONNECTIONS, {
             color: '#ffc857',
@@ -388,6 +483,165 @@ function handleHandTrackingResults(results) {
     }
 
     overlayContext.restore();
+}
+
+function startSignPredictionLoop() {
+    if (signPredictionIntervalId || !predictUrl) {
+        return;
+    }
+
+    signPredictionIntervalId = window.setInterval(() => {
+        void runSignPrediction();
+    }, 700);
+}
+
+function stopSignPredictionLoop() {
+    if (signPredictionIntervalId) {
+        window.clearInterval(signPredictionIntervalId);
+        signPredictionIntervalId = 0;
+    }
+
+    signPredictionBusy = false;
+}
+
+async function runSignPrediction() {
+    if (signPredictionBusy || !predictUrl || !translatorShell || translatorShell.dataset.mode !== 'sign-to-text') {
+        return;
+    }
+
+    if (!Array.isArray(currentHandLandmarks) || currentHandLandmarks.length < 21) {
+        renderSignTextOutput('Show your hand to start translation.', 'idle');
+        return;
+    }
+
+    signPredictionBusy = true;
+
+    try {
+        const response = await fetch(predictUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCsrfToken(),
+            },
+            body: JSON.stringify({
+                landmarks: currentHandLandmarks,
+            }),
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            if (payload.error === 'No training data found. Capture samples first.') {
+                renderSignTextOutput('No training data yet. Capture sign samples first.', 'warning');
+            } else if (payload.error === 'Found legacy PNG captures without ML metadata. Please recapture samples using the current capture mode.') {
+                const count = Number(payload.png_only_samples || 0);
+                renderSignTextOutput(`Found ${count} old PNG-only captures. Recapture signs once to enable translation.`, 'warning');
+            } else {
+                renderSignTextOutput('Prediction unavailable.', 'warning');
+            }
+            return;
+        }
+
+        const predictedSign = String(payload.predicted_sign || '').replaceAll('_', ' ').trim();
+        const confidence = Number(payload.confidence || 0);
+        const confidencePercent = Math.round(confidence * 100);
+
+        if (!predictedSign) {
+            renderSignTextOutput('Sign not recognized yet.', 'warning');
+            return;
+        }
+
+        if (confidence < 0.38) {
+            renderSignTextOutput(`Uncertain sign (${confidencePercent}%). Hold the sign steady.`, 'warning');
+            return;
+        }
+
+        renderSignTextOutput(`${predictedSign} (${confidencePercent}%)`, 'success');
+    } catch (error) {
+        renderSignTextOutput('Prediction unavailable.', 'warning');
+    } finally {
+        signPredictionBusy = false;
+    }
+}
+
+async function captureSkeletalFrame() {
+    if (!captureUrl || skeletalCaptureSaving || !cameraOverlay || !cameraOverlay.width || !cameraOverlay.height) {
+        return;
+    }
+
+    if (!skeletalCaptureActive || !cameraStream || !activeCaptureSignName) {
+        return;
+    }
+
+    if (lastDetectedHandCount === 0) {
+        setCameraStatusMessage('No hand skeleton detected. Show your hand and try again.', true);
+        return;
+    }
+
+    skeletalCaptureSaving = true;
+    setCameraStatusMessage(`Saving ${activeCaptureSignName} capture...`, true);
+
+    try {
+        const snapshotCanvas = document.createElement('canvas');
+        snapshotCanvas.width = cameraOverlay.width;
+        snapshotCanvas.height = cameraOverlay.height;
+
+        const snapshotContext = snapshotCanvas.getContext('2d');
+        if (!snapshotContext) {
+            throw new Error('Canvas unavailable');
+        }
+
+        snapshotContext.fillStyle = '#000000';
+        snapshotContext.fillRect(0, 0, snapshotCanvas.width, snapshotCanvas.height);
+        snapshotContext.drawImage(cameraOverlay, 0, 0, snapshotCanvas.width, snapshotCanvas.height);
+
+        const imageData = snapshotCanvas.toDataURL('image/png');
+
+        const response = await fetch(captureUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCsrfToken(),
+            },
+            body: JSON.stringify({
+                image_data: imageData,
+                sign_name: activeCaptureSignName,
+                landmarks: currentHandLandmarks,
+            }),
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(payload.error || 'Capture save failed');
+        }
+
+        const savedName = payload.filename || 'sample.png';
+        const savedSign = payload.sign_folder || activeCaptureSignName;
+        setCameraStatusMessage(`Saved ${savedName} to database for sign ${savedSign}. Press Space for next capture.`, true);
+    } catch (error) {
+        setCameraStatusMessage('Capture failed. Try again.', true);
+    } finally {
+        skeletalCaptureSaving = false;
+    }
+}
+
+function handleSkeletalCaptureKeydown(event) {
+    if (event.code !== 'Space') {
+        return;
+    }
+
+    if (!translatorShell || translatorShell.dataset.mode !== 'sign-to-text' || !skeletalCaptureActive) {
+        return;
+    }
+
+    if (event.repeat) {
+        event.preventDefault();
+        return;
+    }
+
+    event.preventDefault();
+    void captureSkeletalFrame();
 }
 
 function buildCameraErrorMessage(error) {
@@ -455,6 +709,19 @@ function escapeAttribute(value) {
     return escapeHtml(value);
 }
 
+function getCsrfToken() {
+    const csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+    if (csrfInput instanceof HTMLInputElement && csrfInput.value) {
+        return csrfInput.value;
+    }
+
+    const csrfCookie = document.cookie
+        .split('; ')
+        .find((cookie) => cookie.startsWith('csrftoken='));
+
+    return csrfCookie ? decodeURIComponent(csrfCookie.split('=')[1]) : '';
+}
+
 if (swapButton && translatorShell) {
     swapButton.addEventListener('click', () => {
         const currentMode = translatorShell.dataset.mode;
@@ -475,7 +742,36 @@ if (restartCameraButton) {
     });
 }
 
-window.addEventListener('beforeunload', stopCameraPreview);
+if (toggleCaptureModeButton) {
+    toggleCaptureModeButton.addEventListener('click', () => {
+        if (!translatorShell || translatorShell.dataset.mode !== 'sign-to-text') {
+            return;
+        }
+
+        setSkeletalCaptureMode(!skeletalCaptureActive);
+    });
+}
+
+if (captureSignNameInput) {
+    captureSignNameInput.addEventListener('input', () => {
+        if (!captureSignNameInput.value.trim().length && !skeletalCaptureActive && cameraStatus) {
+            cameraStatus.textContent = 'Enter a sign name before starting capture.';
+            cameraStatus.classList.add('camera-status--visible');
+        }
+
+        if (captureSignNameInput.value.trim().length && !skeletalCaptureActive && cameraStatus && cameraStatus.textContent.includes('Enter a sign name')) {
+            cameraStatus.textContent = '';
+            cameraStatus.classList.remove('camera-status--visible');
+        }
+    });
+}
+
+window.addEventListener('keydown', handleSkeletalCaptureKeydown);
+
+window.addEventListener('beforeunload', () => {
+    stopSignPredictionLoop();
+    stopCameraPreview();
+});
 window.addEventListener('resize', syncCameraOverlaySize);
 
 setMode('text-to-sign');

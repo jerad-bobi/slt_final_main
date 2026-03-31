@@ -1,17 +1,28 @@
 import json
+import re
+from base64 import b64decode
+from binascii import Error as BinasciiError
 
 from django.db import transaction
 from django.db.models import Count, Max
 from django.http import JsonResponse
 from django.shortcuts import render
 
-from accounts.models import Account, BrainQuizAttempt
+from accounts.models import Account, BrainQuizAttempt, SkeletalSignSample
 
+from .skeletal_classifier_service import normalize_landmarks, predict_sign_from_landmarks
 from .signasl_service import QUIZ_TERMS, get_quiz_question_from_terms, lookup_text
 
 
 BRAIN_QUIZ_SEEN_TERMS = 'brain_quiz_seen_terms'
 SESSION_ACCOUNT_ID = 'account_id'
+SKELETAL_CAPTURE_MAX_BYTES = 5 * 1024 * 1024
+
+
+def _normalize_sign_folder_name(raw_name: str) -> str:
+    cleaned = re.sub(r'[^A-Za-z0-9 _-]', '', raw_name).strip()
+    cleaned = re.sub(r'\s+', '_', cleaned)
+    return cleaned[:64]
 
 
 def home(request):
@@ -42,6 +53,87 @@ def signasl_lookup(request):
     text = request.GET.get('text', '')
     payload = lookup_text(text)
     return JsonResponse(payload)
+
+
+def save_skeletal_hand_capture(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed.'}, status=405)
+
+    try:
+        payload = json.loads(request.body.decode('utf-8'))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return JsonResponse({'error': 'Invalid request body.'}, status=400)
+
+    image_data = str(payload.get('image_data', '')).strip()
+    sign_name_raw = str(payload.get('sign_name', '')).strip()
+    sign_folder_name = _normalize_sign_folder_name(sign_name_raw)
+    landmarks = payload.get('landmarks')
+    feature_vector = normalize_landmarks(landmarks if isinstance(landmarks, list) else [])
+
+    if not sign_folder_name:
+        return JsonResponse({'error': 'Missing sign name.'}, status=400)
+
+    if feature_vector is None:
+        return JsonResponse({'error': 'Missing or invalid hand landmarks.'}, status=400)
+
+    if not image_data:
+        return JsonResponse({'error': 'Missing image data.'}, status=400)
+
+    if not image_data.startswith('data:image/png;base64,'):
+        return JsonResponse({'error': 'Only PNG data URL is supported.'}, status=400)
+
+    encoded_part = image_data.split(',', 1)[1]
+    try:
+        binary_content = b64decode(encoded_part, validate=True)
+    except (BinasciiError, ValueError):
+        return JsonResponse({'error': 'Malformed image payload.'}, status=400)
+
+    if not binary_content:
+        return JsonResponse({'error': 'Empty image payload.'}, status=400)
+
+    if len(binary_content) > SKELETAL_CAPTURE_MAX_BYTES:
+        return JsonResponse({'error': 'Image payload too large.'}, status=413)
+
+    filename = ''
+
+    saved_sample = SkeletalSignSample.objects.create(
+        sign_name=sign_name_raw,
+        sign_folder=sign_folder_name,
+        filename=filename,
+        image_png=binary_content,
+        feature_vector=feature_vector,
+        source='capture',
+    )
+
+    return JsonResponse(
+        {
+            'saved': True,
+            'filename': f'sample_{saved_sample.id}.png',
+            'sample_id': saved_sample.id,
+            'sign_name': sign_name_raw,
+            'sign_folder': sign_folder_name,
+        }
+    )
+
+
+def predict_skeletal_sign(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed.'}, status=405)
+
+    try:
+        payload = json.loads(request.body.decode('utf-8'))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return JsonResponse({'error': 'Invalid request body.'}, status=400)
+
+    landmarks = payload.get('landmarks')
+    if not isinstance(landmarks, list):
+        return JsonResponse({'error': 'Landmarks are required.'}, status=400)
+
+    result = predict_sign_from_landmarks(landmarks)
+    if not result.get('ok'):
+        return JsonResponse(result, status=400)
+
+    return JsonResponse(result)
 
 
 def _get_current_account(request):

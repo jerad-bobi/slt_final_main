@@ -105,9 +105,8 @@ select {
 }
 
 .site-header {
-    display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
-    gap: 24px;
+    display: flex;
+    justify-content: flex-start;
     align-items: center;
     margin-bottom: 18px;
 }
@@ -134,7 +133,6 @@ select {
 }
 
 .site-brand__eyebrow,
-.site-header__label,
 .eyebrow,
 .card-label {
     display: block;
@@ -151,14 +149,6 @@ select {
     font-family: var(--font-display);
     font-size: 1.65rem;
     font-weight: 700;
-}
-
-.site-header__copy {
-    padding: 18px 20px;
-    border: 1px solid var(--line);
-    border-radius: 22px;
-    background: rgba(255, 250, 242, 0.54);
-    backdrop-filter: blur(10px);
 }
 
 .site-header__text,
@@ -408,7 +398,7 @@ select {
     }
 
     .site-header {
-        grid-template-columns: 1fr;
+        justify-content: flex-start;
     }
 
     .panel-surface--hero {

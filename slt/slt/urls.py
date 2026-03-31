@@ -18,7 +18,17 @@ from django.contrib import admin
 from django.urls import path
 
 from accounts.views import about_me, account_access, login_view, logout_view, register_view
-from .views import brain_quiz_attempt_save, brain_quiz_leaderboard, brain_quiz_question, home, learn_vocabularies, lets_practice, sharpen_your_brain
+from .views import (
+    brain_quiz_attempt_save,
+    brain_quiz_leaderboard,
+    brain_quiz_question,
+    home,
+    learn_vocabularies,
+    lets_practice,
+    predict_skeletal_sign,
+    save_skeletal_hand_capture,
+    sharpen_your_brain,
+)
 from .views import signasl_lookup
 
 urlpatterns = [
@@ -26,6 +36,8 @@ urlpatterns = [
     path('sharpen-your-brain/', sharpen_your_brain, name='sharpen_your_brain'),
     path('lets-practice/', lets_practice, name='lets_practice'),
     path('api/signasl-lookup/', signasl_lookup, name='signasl_lookup'),
+    path('api/save-skeletal-hand-capture/', save_skeletal_hand_capture, name='save_skeletal_hand_capture'),
+    path('api/predict-skeletal-sign/', predict_skeletal_sign, name='predict_skeletal_sign'),
     path('api/brain-quiz-question/', brain_quiz_question, name='brain_quiz_question'),
     path('api/brain-quiz-attempt-save/', brain_quiz_attempt_save, name='brain_quiz_attempt_save'),
     path('api/brain-quiz-leaderboard/', brain_quiz_leaderboard, name='brain_quiz_leaderboard'),

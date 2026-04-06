@@ -1,5 +1,6 @@
 import json
 import re
+import string
 from base64 import b64decode
 from binascii import Error as BinasciiError
 
@@ -264,6 +265,8 @@ def learn_vocabularies(request):
 
 
 def syllabus_letters_and_numbers(request):
+    syllabus_terms = list(string.ascii_uppercase) + [str(number) for number in range(10)]
+
     return render(
         request,
         'syllabus_letters_and_numbers.html',
@@ -273,7 +276,8 @@ def syllabus_letters_and_numbers(request):
             'page_title': 'Letters and Numbers',
             'page_description': 'Learn the core sign vocabulary for letters and numbers.',
             'cutscene_caption': 'Loading alphabet and number signs...',
-            'lesson_term': 'A',
+            'lesson_term': syllabus_terms[0],
+            'syllabus_terms': syllabus_terms,
         },
     )
 

@@ -44,7 +44,7 @@
 <section class="syllabus-lesson panel-surface" data-lookup-url="{% url 'signasl_lookup' %}" data-predict-url="{% url 'predict_skeletal_sign' %}" data-term="{{ lesson_term }}">
     <div class="syllabus-lesson__header">
         <div>
-            <h2>Sign Lesson: {{ lesson_term }}</h2>
+            <h2 id="syllabus-lesson-title">Sign Lesson: {{ lesson_term }}</h2>
             <p>Reference on the left, camera practice on the right.</p>
         </div>
         <span class="status-pill">Lesson 1</span>
@@ -53,7 +53,7 @@
     <div class="syllabus-lesson__grid">
         <article class="syllabus-card syllabus-card--reference">
             <header class="syllabus-card__header">
-                <h3>How to sign {{ lesson_term }}</h3>
+                <h3 id="syllabus-reference-title">How to sign {{ lesson_term }}</h3>
                 <span>Source: SignASL</span>
             </header>
 
@@ -63,7 +63,7 @@
 
             <div class="syllabus-steps">
                 <p class="syllabus-steps__title">Instructions</p>
-                <ol>
+                <ol id="syllabus-instruction-list">
                     <li>Close your fingers into a gentle fist.</li>
                     <li>Keep your thumb resting along the side of the fist.</li>
                     <li>Hold the hand shape still and clear for the camera.</li>
@@ -74,7 +74,7 @@
         <article class="syllabus-card syllabus-card--camera">
             <header class="syllabus-card__header">
                 <h3>Your practice camera</h3>
-                <span>Imitate the sign</span>
+                <span id="syllabus-camera-prompt">Imitate the sign</span>
             </header>
 
             <div class="syllabus-camera-shell">
@@ -89,10 +89,13 @@
 
             <div class="syllabus-camera-actions">
                 <button class="button button--secondary" type="button" id="syllabus-restart-camera">Restart Camera</button>
+                <button class="button button--primary syllabus-proceed-button" type="button" id="syllabus-proceed-button" hidden>Proceed</button>
             </div>
         </article>
     </div>
 </section>
+
+{{ syllabus_terms|json_script:"syllabus-terms-data" }}
 {% endblock %}
 
 {% block scripts %}

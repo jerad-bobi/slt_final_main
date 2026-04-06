@@ -119,6 +119,10 @@
     justify-content: flex-start;
 }
 
+.syllabus-proceed-button[hidden] {
+    display: none;
+}
+
 .syllabus-detection-output {
     margin-top: 16px;
     padding: 14px 16px;

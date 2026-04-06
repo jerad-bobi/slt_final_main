@@ -263,6 +263,76 @@ def learn_vocabularies(request):
     )
 
 
+def syllabus_letters_and_numbers(request):
+    return render(
+        request,
+        'page.html',
+        {
+            'active_page': 'brain',
+            'is_syllabus': True,
+            'page_title': 'Letters and Numbers',
+            'page_description': 'Learn the core sign vocabulary for letters and numbers.',
+            'cutscene_caption': 'Loading alphabet and number signs...',
+        },
+    )
+
+
+def syllabus_greetings_and_personal(request):
+    return render(
+        request,
+        'page.html',
+        {
+            'active_page': 'brain',
+            'is_syllabus': True,
+            'page_title': 'Greetings and Personal',
+            'page_description': 'Practice signs for greetings and personal introductions.',
+            'cutscene_caption': 'Preparing conversational starter signs...',
+        },
+    )
+
+
+def syllabus_polite_phrases(request):
+    return render(
+        request,
+        'page.html',
+        {
+            'active_page': 'brain',
+            'is_syllabus': True,
+            'page_title': 'Polite Phrases',
+            'page_description': 'Review common polite expressions used in daily conversations.',
+            'cutscene_caption': 'Calibrating courtesy expressions...',
+        },
+    )
+
+
+def syllabus_daily_life(request):
+    return render(
+        request,
+        'page.html',
+        {
+            'active_page': 'brain',
+            'is_syllabus': True,
+            'page_title': 'Daily Life',
+            'page_description': 'Explore practical signs used in routine day-to-day activities.',
+            'cutscene_caption': 'Loading daily routine sign missions...',
+        },
+    )
+
+
+def syllabus_basic_adjectives(request):
+    return render(
+        request,
+        'page.html',
+        {
+            'active_page': 'brain',
+            'is_syllabus': True,
+            'page_title': 'Basic Adjectives',
+            'page_description': 'Study beginner adjective signs for common descriptions.',
+            'cutscene_caption': 'Generating descriptive sign challenges...',
+        },
+    )
+
+
 def about_me(request):
     return render(
         request,

@@ -28,6 +28,11 @@ from .views import (
     predict_skeletal_sign,
     save_skeletal_hand_capture,
     sharpen_your_brain,
+    syllabus_basic_adjectives,
+    syllabus_daily_life,
+    syllabus_greetings_and_personal,
+    syllabus_letters_and_numbers,
+    syllabus_polite_phrases,
 )
 from .views import signasl_lookup
 
@@ -42,6 +47,11 @@ urlpatterns = [
     path('api/brain-quiz-attempt-save/', brain_quiz_attempt_save, name='brain_quiz_attempt_save'),
     path('api/brain-quiz-leaderboard/', brain_quiz_leaderboard, name='brain_quiz_leaderboard'),
     path('learn-vocabularies/', learn_vocabularies, name='learn_vocabularies'),
+    path('syllabus/letters-and-numbers/', syllabus_letters_and_numbers, name='syllabus_letters_and_numbers'),
+    path('syllabus/greetings-and-personal/', syllabus_greetings_and_personal, name='syllabus_greetings_and_personal'),
+    path('syllabus/polite-phrases/', syllabus_polite_phrases, name='syllabus_polite_phrases'),
+    path('syllabus/daily-life/', syllabus_daily_life, name='syllabus_daily_life'),
+    path('syllabus/basic-adjectives/', syllabus_basic_adjectives, name='syllabus_basic_adjectives'),
     path('account/', account_access, name='account_access'),
     path('register/', register_view, name='register'),
     path('login/', login_view, name='login'),

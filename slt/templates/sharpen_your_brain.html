@@ -23,6 +23,18 @@
     </div>
 </section>
 
+<section class="panel-surface brain-syllabus" aria-label="Syllabus topics">
+    <h2>Choose a syllabus</h2>
+    <p class="lead-copy">Select one topic to learn before taking the quiz.</p>
+    <div class="brain-syllabus__grid">
+        <a class="button button--secondary" href="{% url 'syllabus_letters_and_numbers' %}">Letters and Numbers</a>
+        <a class="button button--secondary" href="{% url 'syllabus_greetings_and_personal' %}">Greetings and Personal</a>
+        <a class="button button--secondary" href="{% url 'syllabus_polite_phrases' %}">Polite Phrases</a>
+        <a class="button button--secondary" href="{% url 'syllabus_daily_life' %}">Daily Life</a>
+        <a class="button button--secondary" href="{% url 'syllabus_basic_adjectives' %}">Basic Adjectives</a>
+    </div>
+</section>
+
 <section class="brain-leaderboard-layout" aria-label="Global quiz leaderboard">
     <article class="panel-surface brain-leaderboard-card" data-leaderboard-url="{% url 'brain_quiz_leaderboard' %}">
         <div class="brain-leaderboard-card__header">

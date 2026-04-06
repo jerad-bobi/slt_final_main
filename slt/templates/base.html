@@ -5,44 +5,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Sign Language Translator{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
 <body class="site-body {% block body_class %}{% endblock %}">
-    <div class="site-backdrop" aria-hidden="true">
-        <span class="site-glow site-glow--one"></span>
-        <span class="site-glow site-glow--two"></span>
-        <span class="site-grid"></span>
+
+    <div class="pixel-stage" aria-hidden="true">
+        <div class="pixel-grid-overlay"></div>
+        <span class="pixel-sprite pixel-sprite--bot"></span>
+        <span class="pixel-sprite pixel-sprite--rocket"></span>
+        <span class="pixel-sprite pixel-sprite--gem"></span>
+        <span class="pixel-dot pixel-dot--1"></span>
+        <span class="pixel-dot pixel-dot--2"></span>
+        <span class="pixel-dot pixel-dot--3"></span>
+        <span class="pixel-dot pixel-dot--4"></span>
+        <span class="pixel-dot pixel-dot--5"></span>
+        <span class="pixel-dot pixel-dot--6"></span>
+        <span class="pixel-dot pixel-dot--7"></span>
+        <span class="pixel-dot pixel-dot--8"></span>
+        <span class="pixel-dot pixel-dot--9"></span>
+        <span class="pixel-dot pixel-dot--10"></span>
+        <span class="pixel-dot pixel-dot--11"></span>
+        <span class="pixel-dot pixel-dot--12"></span>
     </div>
 
-    <div class="site-shell">
-        <header class="site-header">
-            <a href="{% url 'home' %}" class="site-brand" aria-label="Go to homepage">
-                <span class="site-brand__mark">SL</span>
-                <span>
-                    <span class="site-brand__eyebrow">Sign Language Studio</span>
-                    <strong class="site-brand__name">Handspeak Atlas</strong>
-                </span>
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="{% url 'home' %}" class="nav-brand" aria-label="Go to homepage">
+                <span class="brand-icon">SL</span>
+                Handspeak Atlas
             </a>
-        </header>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="{% url 'home' %}" class="{% if active_page == 'home' %}nav-link--active{% endif %}">Home</a></li>
+                <li><a href="{% url 'sharpen_your_brain' %}" class="{% if active_page == 'brain' %}nav-link--active{% endif %}">Quiz</a></li>
+                <li><a href="{% url 'lets_practice' %}" class="{% if active_page == 'practice' %}nav-link--active{% endif %}">Practice</a></li>
+                <li><a href="{% url 'learn_vocabularies' %}" class="{% if active_page == 'vocabularies' %}nav-link--active{% endif %}">Vocabulary</a></li>
+                <li class="nav-mobile-actions">
+                    <a href="{% url 'account_access' %}" class="btn btn-primary">Account</a>
+                </li>
+            </ul>
+            <div class="nav-actions">
+                <a href="{% url 'account_access' %}" class="btn {% if active_page == 'about' %}btn-primary{% else %}btn-ghost{% endif %}">Account</a>
+            </div>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
 
-        <nav class="site-nav" aria-label="Primary navigation">
-            <a href="{% url 'home' %}" class="site-nav__link{% if active_page == 'home' %} site-nav__link--active{% endif %}">Home</a>
-            <a href="{% url 'sharpen_your_brain' %}" class="site-nav__link{% if active_page == 'brain' %} site-nav__link--active{% endif %}">Sharpen Your Brain</a>
-            <a href="{% url 'lets_practice' %}" class="site-nav__link{% if active_page == 'practice' %} site-nav__link--active{% endif %}">Let's Practice</a>
-            <a href="{% url 'learn_vocabularies' %}" class="site-nav__link{% if active_page == 'vocabularies' %} site-nav__link--active{% endif %}">Learn Vocabularies</a>
-            <a href="{% url 'about_me' %}" class="site-nav__link{% if active_page == 'about' %} site-nav__link--active{% endif %}">About Me</a>
-        </nav>
-
-        <main class="page-frame">
+    <main class="page-frame">
+        <div class="container">
             {% block content %}{% endblock %}
-        </main>
+        </div>
+    </main>
 
-        <footer class="site-footer">
-            <p>Handspeak Atlas blends search, practice, and account access in one responsive workspace.</p>
-        </footer>
-    </div>
-
+    <script>
+    (function(){
+        const nb = document.getElementById('navbar');
+        window.addEventListener('scroll', () => { nb.classList.toggle('scrolled', window.scrollY > 40); }, {passive:true});
+        const nt = document.getElementById('navToggle');
+        const nl = document.getElementById('navLinks');
+        nt.addEventListener('click', () => { nt.classList.toggle('active'); nl.classList.toggle('open'); });
+        nl.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { nt.classList.remove('active'); nl.classList.remove('open'); }));
+        const pRM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if(!pRM){
+            const obs = new IntersectionObserver(es => { es.forEach(e => { if(e.isIntersecting){ const sib = e.target.parentElement.querySelectorAll('.fade-up:not(.visible)'); const i = Array.from(sib).indexOf(e.target); setTimeout(()=>e.target.classList.add('visible'), Math.max(0,i)*100); obs.unobserve(e.target); }}); }, {threshold:0.1, rootMargin:'0px 0px -30px 0px'});
+            document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+        } else { document.querySelectorAll('.fade-up').forEach(el => el.classList.add('visible')); }
+    })();
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

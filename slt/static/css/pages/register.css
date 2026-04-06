@@ -3,13 +3,13 @@
 }
 
 .register-form-card {
-    padding: 30px;
+    padding: 36px;
     max-width: 760px;
     margin: 0 auto;
 }
 
 .register-form-card__intro {
-    margin-bottom: 18px;
+    margin-bottom: 20px;
 }
 
 .auth-form--register {
@@ -22,7 +22,7 @@
     grid-column: 1 / -1;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
     .auth-form--register {
         grid-template-columns: 1fr;
     }

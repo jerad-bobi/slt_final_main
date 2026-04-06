@@ -1,11 +1,11 @@
 .access-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 22px;
+    gap: 20px;
 }
 
 .access-hero {
-    margin-bottom: 22px;
+    margin-bottom: 24px;
 }
 
 .access-card {
@@ -17,15 +17,17 @@
 
 .access-card h2 {
     margin: 0;
-    font-family: var(--font-display);
     font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
 }
 
 .access-card--primary {
-    background: linear-gradient(160deg, rgba(255, 250, 242, 0.92), rgba(240, 221, 201, 0.86));
+    background: linear-gradient(160deg, var(--surface-2), var(--surface-3));
+    border-color: var(--accent-border);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
     .access-grid {
         grid-template-columns: 1fr;
     }

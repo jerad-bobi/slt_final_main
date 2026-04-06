@@ -7,9 +7,35 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/pages/page.css' %}">
+{% if is_syllabus %}
+<link rel="stylesheet" href="{% static 'css/pages/syllabus_cutscene.css' %}">
+{% endif %}
 {% endblock %}
 
 {% block content %}
+{% if is_syllabus %}
+<section
+    class="site-cutscene"
+    id="site-cutscene"
+    aria-label="Syllabus intro cutscene"
+    data-cutscene-title="{{ page_title }}"
+    data-cutscene-caption="Your Contribution To Society Is Filled With Determination"
+>
+    <div class="site-cutscene__blackout" aria-hidden="true"></div>
+
+    <div class="site-cutscene__stage" aria-hidden="true">
+        <span class="site-cutscene__avatar"></span>
+    </div>
+
+    <div class="site-cutscene__content">
+        <p class="site-cutscene__eyebrow">Syllabus unlocked</p>
+        <h2 class="site-cutscene__title"></h2>
+        <p class="site-cutscene__caption"></p>
+        <button type="button" class="site-cutscene__skip" id="site-cutscene-skip">Skip</button>
+    </div>
+</section>
+{% endif %}
+
 <section class="generic-page" aria-label="{{ page_title }} page">
     <article class="panel-surface panel-surface--hero generic-page__hero">
         <p class="eyebrow">In progress</p>
@@ -17,4 +43,10 @@
         <p class="lead-copy">{{ page_description }}</p>
     </article>
 </section>
+{% endblock %}
+
+{% block scripts %}
+{% if is_syllabus %}
+<script src="{% static 'js/syllabus_cutscene.js' %}"></script>
+{% endif %}
 {% endblock %}

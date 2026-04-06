@@ -3,19 +3,11 @@
 }
 
 .auth-form-card {
-    padding: 30px;
+    padding: 36px;
     max-width: 640px;
     margin: 0 auto;
 }
 
 .auth-form-card__intro {
-    margin-bottom: 18px;
-}
-
-.auth-switch {
-    margin: 18px 0 0;
-}
-
-.auth-switch a {
-    color: var(--accent-deep);
+    margin-bottom: 20px;
 }

@@ -1,7 +1,7 @@
 .profile-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 22px;
+    gap: 24px;
 }
 
 .profile-history-grid {
@@ -25,45 +25,50 @@
 .profile-card__avatar {
     display: grid;
     place-items: center;
-    width: 86px;
-    height: 86px;
-    border-radius: 24px;
-    background: linear-gradient(160deg, var(--accent), #d29367);
-    color: #fff8f0;
-    font-family: var(--font-display);
-    font-size: 2rem;
-    box-shadow: var(--shadow-md);
+    width: 76px;
+    height: 76px;
+    border-radius: var(--radius);
+    background: var(--accent);
+    color: #fff;
+    font-size: 1.8rem;
+    font-weight: 800;
+    box-shadow: 0 0 32px var(--accent-glow);
 }
 
 .profile-card__label {
     margin: 0 0 6px;
-    color: var(--muted);
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.16em;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
 }
 
 .profile-card__name {
     margin: 0 0 8px;
-    font-family: var(--font-display);
-    font-size: 2rem;
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
 }
 
 .profile-card__meta {
     margin: 0;
+    color: var(--text-secondary);
 }
 
 .profile-history-card {
     padding: 28px;
 }
+
 .profile-history-item__eyebrow {
     display: block;
     margin-bottom: 6px;
-    color: var(--muted);
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.16em;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
 }
 
@@ -76,18 +81,19 @@
 }
 
 .profile-history-card {
-    margin-top: 22px;
+    margin-top: 24px;
 }
 
 .profile-history-card__header h2 {
     margin: 0;
-    font-family: var(--font-display);
-    font-size: 2rem;
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
 }
 
 .profile-history-card__caption {
     margin: 8px 0 0;
-    color: var(--muted);
+    color: var(--text-muted);
     line-height: 1.6;
 }
 
@@ -98,10 +104,11 @@
 }
 
 .profile-filter-form__label {
-    color: var(--muted);
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.16em;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
 }
 
@@ -115,10 +122,10 @@
     flex: 1;
     min-width: 0;
     padding: 11px 14px;
-    border: 1px solid rgba(35, 49, 45, 0.12);
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.82);
-    color: var(--text);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    color: var(--text-primary);
     font: inherit;
 }
 
@@ -133,32 +140,40 @@
     justify-content: space-between;
     gap: 16px;
     padding: 18px;
-    border: 1px solid rgba(35, 49, 45, 0.08);
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.56);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius);
+    background: var(--surface-2);
+    transition: all 0.3s ease;
+}
+
+.profile-history-item:hover {
+    border-color: rgba(255,255,255,0.08);
+    transform: translateY(-2px);
 }
 
 .profile-history-item__score {
     margin: 0;
-    font-family: var(--font-display);
     font-size: 1.5rem;
+    font-weight: 800;
 }
 
 .profile-history-item__date,
 .profile-history-empty {
-    color: var(--muted);
+    color: var(--text-muted);
     line-height: 1.6;
 }
 
 .profile-history-item__date {
     text-align: right;
+    font-size: 13px;
 }
 
 .profile-history-empty {
-    padding: 20px;
-    border: 1px dashed rgba(35, 49, 45, 0.14);
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.38);
+    padding: 24px;
+    border: 1px dashed var(--border-subtle);
+    border-radius: var(--radius);
+    background: var(--surface-2);
+    text-align: center;
 }
 
 @media (max-width: 720px) {

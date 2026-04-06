@@ -266,13 +266,14 @@ def learn_vocabularies(request):
 def syllabus_letters_and_numbers(request):
     return render(
         request,
-        'page.html',
+        'syllabus_letters_and_numbers.html',
         {
             'active_page': 'brain',
             'is_syllabus': True,
             'page_title': 'Letters and Numbers',
             'page_description': 'Learn the core sign vocabulary for letters and numbers.',
             'cutscene_caption': 'Loading alphabet and number signs...',
+            'lesson_term': 'A',
         },
     )
 

@@ -9,7 +9,7 @@ from django.db.models import Count, Max
 from django.http import JsonResponse
 from django.shortcuts import render
 
-from accounts.models import Account, BrainQuizAttempt, SkeletalSignSample, SyllabusProgress
+from accounts.models import Account, BrainQuizAttempt, SearchHistory, SkeletalSignSample, SyllabusProgress
 
 from .skeletal_classifier_service import normalize_landmarks, predict_sign_from_landmarks
 from .signasl_service import QUIZ_TERMS, get_quiz_question_from_terms, lookup_text
@@ -145,7 +145,69 @@ def lets_practice(request):
 def signasl_lookup(request):
     text = request.GET.get('text', '')
     payload = lookup_text(text)
+    
+    # Save search history for logged-in users
+    account_id = request.session.get(SESSION_ACCOUNT_ID)
+    if account_id and text.strip():
+        try:
+            account = Account.objects.get(id=account_id)
+            SearchHistory.objects.create(
+                account=account,
+                search_term=text.strip()[:100]
+            )
+        except Account.DoesNotExist:
+            pass
+    
     return JsonResponse(payload)
+
+
+def get_search_history(request):
+    account_id = request.session.get(SESSION_ACCOUNT_ID)
+    
+    if not account_id:
+        return JsonResponse({'history': []})
+    
+    try:
+        account = Account.objects.get(id=account_id)
+        # Get recent unique search terms (order by latest occurrence)
+        recent_searches = (
+            SearchHistory.objects
+            .filter(account=account)
+            .order_by('-searched_at')
+            .values_list('search_term', flat=True)
+            [:50]  # Get more to filter duplicates
+        )
+        
+        # Remove duplicates while preserving order
+        seen = set()
+        unique_terms = []
+        for term in recent_searches:
+            if term not in seen:
+                seen.add(term)
+                unique_terms.append(term)
+                if len(unique_terms) >= 10:
+                    break
+        
+        return JsonResponse({'history': unique_terms})
+    except Account.DoesNotExist:
+        return JsonResponse({'history': []})
+
+
+def clear_search_history(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed.'}, status=405)
+    
+    account_id = request.session.get(SESSION_ACCOUNT_ID)
+    
+    if not account_id:
+        return JsonResponse({'error': 'Not authenticated.'}, status=401)
+    
+    try:
+        account = Account.objects.get(id=account_id)
+        SearchHistory.objects.filter(account=account).delete()
+        return JsonResponse({'success': True})
+    except Account.DoesNotExist:
+        return JsonResponse({'error': 'Account not found.'}, status=404)
 
 
 def save_skeletal_hand_capture(request):

@@ -43,6 +43,13 @@
     opacity: 0.85;
 }
 
+.dictionary-content {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 20px;
+    align-items: start;
+}
+
 .dictionary-results {
     padding: 22px;
     border: 1px solid var(--border-subtle);
@@ -145,6 +152,97 @@
 @keyframes dictionary-shimmer {
     from { background-position: 200% 0; }
     to { background-position: -200% 0; }
+}
+
+.dictionary-history {
+    padding: 18px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius);
+    background: var(--surface-2);
+    position: sticky;
+    top: 20px;
+}
+
+.dictionary-history__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.dictionary-history__header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.dictionary-history__clear {
+    padding: 6px 12px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.dictionary-history__clear:hover,
+.dictionary-history__clear:focus-visible {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.dictionary-history__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.dictionary-history__item {
+    padding: 10px 14px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    background: var(--surface-1);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dictionary-history__item:hover,
+.dictionary-history__item:focus-visible {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #fff;
+}
+
+@media (max-width: 992px) {
+    .dictionary-content {
+        grid-template-columns: 1fr;
+    }
+
+    .dictionary-history {
+        position: static;
+        order: -1;
+    }
+
+    .dictionary-history__list {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .dictionary-history__item {
+        flex: 0 0 auto;
+        border-radius: var(--radius-pill);
+    }
 }
 
 @media (max-width: 768px) {

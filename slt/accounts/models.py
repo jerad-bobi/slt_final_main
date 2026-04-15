@@ -80,3 +80,23 @@ class SyllabusProgress(models.Model):
 
     def __str__(self) -> str:
         return f'{self.account.username} {self.syllabus_key} lesson {self.current_term_index + 1}'
+
+
+class SearchHistory(models.Model):
+    account = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+        related_name='search_history_entries',
+    )
+    search_term = models.CharField(max_length=100)
+    searched_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'search_history'
+        ordering = ['-searched_at']
+        indexes = [
+            models.Index(fields=['account', '-searched_at']),
+        ]
+
+    def __str__(self) -> str:
+        return f'{self.account.username} searched "{self.search_term}"'

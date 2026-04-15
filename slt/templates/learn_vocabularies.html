@@ -17,7 +17,7 @@
 </section>
 
 <section class="dictionary-layout">
-	<section class="dictionary-shell panel-surface" data-lookup-url="{% url 'signasl_lookup' %}">
+	<section class="dictionary-shell panel-surface" data-lookup-url="{% url 'signasl_lookup' %}" data-history-url="{% url 'get_search_history' %}" data-clear-history-url="{% url 'clear_search_history' %}">
 		<div class="dictionary-shell__intro">
 			<div>
 				<h2>Sign lookup</h2>
@@ -39,17 +39,31 @@
 			<button class="dictionary-search__button" type="submit">Search</button>
 		</form>
 
-		<section class="dictionary-results" aria-live="polite">
-			<div class="dictionary-results__header">
-				<h2 id="dictionary-results-title">Results</h2>
-				<span id="dictionary-results-meta">Idle</span>
-			</div>
-			<div class="dictionary-results__body" id="dictionary-results-body">
-				<div class="dictionary-empty-state">
-					Search a word to see sign results.
+		<div class="dictionary-content">
+			<section class="dictionary-results" aria-live="polite">
+				<div class="dictionary-results__header">
+					<h2 id="dictionary-results-title">Results</h2>
+					<span id="dictionary-results-meta">Idle</span>
 				</div>
-			</div>
-		</section>
+				<div class="dictionary-results__body" id="dictionary-results-body">
+					<div class="dictionary-empty-state">
+						Search a word to see sign results.
+					</div>
+				</div>
+			</section>
+
+			{% if user.is_authenticated or request.session.account_id %}
+			<aside class="dictionary-history" id="dictionary-history-section">
+				<div class="dictionary-history__header">
+					<h3>Recent Searches</h3>
+					<button class="dictionary-history__clear" id="clear-history-btn" type="button">Clear</button>
+				</div>
+				<div class="dictionary-history__body" id="dictionary-history-body">
+					<div class="dictionary-empty-state">No search history yet.</div>
+				</div>
+			</aside>
+			{% endif %}
+		</div>
 	</section>
 </section>
 {% endblock %}

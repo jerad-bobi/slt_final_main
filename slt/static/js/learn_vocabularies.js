@@ -5,6 +5,11 @@ const dictionaryResultsBody = document.getElementById('dictionary-results-body')
 const dictionaryResultsMeta = document.getElementById('dictionary-results-meta');
 const dictionaryResultsTitle = document.getElementById('dictionary-results-title');
 const dictionaryLookupUrl = dictionaryShell ? dictionaryShell.dataset.lookupUrl : '';
+const dictionaryHistoryUrl = dictionaryShell ? dictionaryShell.dataset.historyUrl : '';
+const dictionaryClearHistoryUrl = dictionaryShell ? dictionaryShell.dataset.clearHistoryUrl : '';
+const dictionaryHistorySection = document.getElementById('dictionary-history-section');
+const dictionaryHistoryBody = document.getElementById('dictionary-history-body');
+const clearHistoryBtn = document.getElementById('clear-history-btn');
 
 let dictionaryController = null;
 let dictionaryCompiledVideo = null;
@@ -238,6 +243,11 @@ async function runDictionarySearch(query) {
 
         const payload = await response.json();
         renderDictionaryResults(trimmedQuery, payload);
+        
+        // Reload history after search
+        if (dictionaryHistorySection) {
+            void loadSearchHistory();
+        }
     } catch (error) {
         if (error.name === 'AbortError') {
             return;
@@ -258,6 +268,92 @@ function escapeHtml(value) {
 
 function escapeAttribute(value) {
     return escapeHtml(value);
+}
+
+async function loadSearchHistory() {
+    if (!dictionaryHistoryUrl || !dictionaryHistorySection) {
+        return;
+    }
+
+    try {
+        const response = await fetch(dictionaryHistoryUrl, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+
+        if (!response.ok) {
+            return;
+        }
+
+        const data = await response.json();
+        renderSearchHistory(data.history || []);
+    } catch (error) {
+        // Silently fail - history is not critical
+    }
+}
+
+function renderSearchHistory(history) {
+    if (!dictionaryHistoryBody) {
+        return;
+    }
+
+    if (!history.length) {
+        dictionaryHistoryBody.innerHTML = `
+            <div class="dictionary-empty-state">No search history yet.</div>
+        `;
+        return;
+    }
+
+    dictionaryHistoryBody.innerHTML = `
+        <div class="dictionary-history__list">
+            ${history.map((term) => `
+                <button class="dictionary-history__item" data-search-term="${escapeAttribute(term)}">
+                    ${escapeHtml(term)}
+                </button>
+            `).join('')}
+        </div>
+    `;
+
+    // Add click handlers to history items
+    const historyItems = dictionaryHistoryBody.querySelectorAll('.dictionary-history__item');
+    historyItems.forEach((item) => {
+        item.addEventListener('click', () => {
+            const searchTerm = item.dataset.searchTerm;
+            if (searchTerm) {
+                void runDictionarySearch(searchTerm);
+            }
+        });
+    });
+}
+
+async function clearSearchHistory() {
+    if (!dictionaryClearHistoryUrl) {
+        return;
+    }
+
+    try {
+        const response = await fetch(dictionaryClearHistoryUrl, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCsrfToken(),
+            },
+        });
+
+        if (response.ok) {
+            renderSearchHistory([]);
+        }
+    } catch (error) {
+        // Silently fail
+    }
+}
+
+function getCsrfToken() {
+    const cookieValue = document.cookie
+        .split('; ')
+        .find((row) => row.startsWith('csrftoken='));
+    return cookieValue ? cookieValue.split('=')[1] : '';
 }
 
 if (dictionaryForm && dictionaryInput) {
@@ -292,4 +388,15 @@ if (dictionaryForm && dictionaryInput) {
     });
 }
 
+if (clearHistoryBtn) {
+    clearHistoryBtn.addEventListener('click', () => {
+        void clearSearchHistory();
+    });
+}
+
 renderDictionaryEmptyState();
+
+// Load search history on page load
+if (dictionaryHistorySection) {
+    void loadSearchHistory();
+}

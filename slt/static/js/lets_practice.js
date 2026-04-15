@@ -14,6 +14,7 @@ const cameraStatus = document.getElementById('camera-status');
 const restartCameraButton = document.getElementById('restart-camera');
 const toggleCaptureModeButton = document.getElementById('toggle-capture-mode');
 const captureSignNameInput = document.getElementById('capture-sign-name');
+const signContextMode = document.getElementById('sign-context-mode');
 const lookupUrl = translatorShell ? translatorShell.dataset.lookupUrl : '';
 const captureUrl = translatorShell ? translatorShell.dataset.captureUrl || '' : '';
 const predictUrl = translatorShell ? translatorShell.dataset.predictUrl || '' : '';
@@ -95,6 +96,19 @@ function renderSignTextOutput(message, tone = 'idle') {
 
     signTextOutput.textContent = message;
     signTextOutput.dataset.tone = tone;
+}
+
+function getPredictionContext() {
+    if (!(signContextMode instanceof HTMLSelectElement)) {
+        return 'general';
+    }
+
+    const selectedContext = String(signContextMode.value || '').trim().toLowerCase();
+    if (selectedContext === 'alphabet' || selectedContext === 'numbers') {
+        return selectedContext;
+    }
+
+    return 'general';
 }
 
 function setCameraStatusMessage(message, persist = false) {
@@ -562,6 +576,7 @@ async function runSignPrediction() {
             },
             body: JSON.stringify({
                 landmarks: currentHandLandmarks,
+                prediction_context: getPredictionContext(),
             }),
         });
 
@@ -579,9 +594,12 @@ async function runSignPrediction() {
         }
 
         const predictedSign = String(payload.predicted_sign || '').replaceAll('_', ' ').trim();
+        const rawPredictedSign = String(payload.raw_predicted_sign || '').replaceAll('_', ' ').trim();
         const confidence = Number(payload.confidence || 0);
         const confidencePercent = Math.round(confidence * 100);
         const candidates = Array.isArray(payload.candidates) ? payload.candidates : [];
+        const predictionContext = String(payload.prediction_context || '').trim();
+        const resolvedByContext = Boolean(payload.resolved_by_context);
 
         if (!predictedSign) {
             renderSignTextOutput('Sign not recognized yet.', 'warning');
@@ -610,7 +628,17 @@ async function runSignPrediction() {
             .slice(0, 3);
 
         if (candidateLabels.length > 1) {
+            if (resolvedByContext && rawPredictedSign && rawPredictedSign !== predictedSign) {
+                renderSignTextOutput(`${predictedSign} (${confidencePercent}%) · ${predictionContext} mode resolved from ${rawPredictedSign}`, 'success');
+                return;
+            }
+
             renderSignTextOutput(candidateLabels.join(' | '), 'success');
+            return;
+        }
+
+        if (resolvedByContext && rawPredictedSign && rawPredictedSign !== predictedSign) {
+            renderSignTextOutput(`${predictedSign} (${confidencePercent}%) · ${predictionContext} mode resolved from ${rawPredictedSign}`, 'success');
             return;
         }
 

@@ -26,6 +26,16 @@
 <section class="panel-surface brain-syllabus" aria-label="Syllabus topics">
     <h2>Choose a syllabus</h2>
     <p class="lead-copy">Select one topic to learn before taking the quiz.</p>
+    {% if letters_and_numbers_progress %}
+    <div class="brain-syllabus__resume-card">
+        <div>
+            <p class="brain-syllabus__resume-eyebrow">Saved lesson</p>
+            <h3>Continue Letters and Numbers</h3>
+            <p>You paused at lesson {{ letters_and_numbers_progress.current_term_index|add:1 }} of {{ letters_and_numbers_progress.total_terms }} on {{ letters_and_numbers_progress.current_term }}.</p>
+        </div>
+        <a class="button button--primary" href="{% url 'syllabus_letters_and_numbers' %}">Continue lesson</a>
+    </div>
+    {% endif %}
     <div class="brain-syllabus__grid">
         <a class="button button--secondary" href="{% url 'syllabus_letters_and_numbers' %}">Letters and Numbers</a>
         <a class="button button--secondary" href="{% url 'syllabus_greetings_and_personal' %}">Greetings and Personal</a>

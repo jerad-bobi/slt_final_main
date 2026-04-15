@@ -54,6 +54,14 @@
                 <div class="mode-block" data-mode-block="sign-to-text-source">
                     <div class="sign-capture-box">
                         <div class="capture-mark">Cam ●</div>
+                        <div class="capture-sign-name-row">
+                            <label for="sign-context-mode" class="capture-sign-name-label">Interpret as</label>
+                            <select id="sign-context-mode" class="capture-sign-name-input">
+                                <option value="general">General signs</option>
+                                <option value="alphabet">Alphabet</option>
+                                <option value="numbers">Numbers</option>
+                            </select>
+                        </div>
                         <div class="camera-preview-shell">
                             <video id="camera-preview" class="camera-preview" autoplay muted playsinline></video>
                             <canvas id="camera-overlay" class="camera-overlay" aria-hidden="true"></canvas>

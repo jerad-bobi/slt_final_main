@@ -6,15 +6,22 @@
 
     const lookupUrl = lesson.dataset.lookupUrl || '';
     const predictUrl = lesson.dataset.predictUrl || '';
+    const progressUrl = lesson.dataset.progressUrl || '';
+    const returnUrl = lesson.dataset.returnUrl || '';
     const initialTerm = lesson.dataset.term || 'A';
+    const initialTermIndex = Number.parseInt(lesson.dataset.initialIndex || '0', 10) || 0;
     const videoShell = document.getElementById('syllabus-video-shell');
     const cameraPreview = document.getElementById('syllabus-camera-preview');
     const cameraOverlay = document.getElementById('syllabus-camera-overlay');
     const cameraStatus = document.getElementById('syllabus-camera-status');
     const detectionOutput = document.getElementById('syllabus-detection-output');
+    const pauseButton = document.getElementById('syllabus-pause-button');
+    const progressFill = document.getElementById('syllabus-progress-fill');
+    const progressText = document.getElementById('syllabus-progress-text');
     const restartCameraButton = document.getElementById('syllabus-restart-camera');
     const proceedButton = document.getElementById('syllabus-proceed-button');
     const lessonTitle = document.getElementById('syllabus-lesson-title');
+    const lessonStatus = document.getElementById('syllabus-lesson-status');
     const referenceTitle = document.getElementById('syllabus-reference-title');
     const cameraPrompt = document.getElementById('syllabus-camera-prompt');
     const instructionList = document.getElementById('syllabus-instruction-list');
@@ -36,6 +43,11 @@
     let correctHoldStartTime = 0;
     let lastHoldCountdownValue = 0;
     let currentTermIndex = Math.max(0, syllabusTerms.indexOf(initialTerm));
+    let progressRequestInFlight = false;
+
+    if (Number.isFinite(initialTermIndex)) {
+        currentTermIndex = Math.max(0, Math.min(initialTermIndex, Math.max(0, syllabusTerms.length - 1)));
+    }
 
     const correctHoldDurationMs = 3000;
     const termInstructions = {
@@ -250,9 +262,15 @@
 
     function updateLessonLabels() {
         const currentTerm = getCurrentTerm();
+        const totalTerms = syllabusTerms.length || 1;
+        const displayLessonNumber = currentTermIndex + 1;
 
         if (lessonTitle) {
             lessonTitle.textContent = 'Sign Lesson: ' + currentTerm;
+        }
+
+        if (lessonStatus) {
+            lessonStatus.textContent = 'Lesson ' + displayLessonNumber + ' of ' + totalTerms;
         }
 
         if (referenceTitle) {
@@ -264,6 +282,55 @@
         }
 
         updateInstructionList();
+        updateProgressDisplay();
+    }
+
+    function updateProgressDisplay() {
+        const totalTerms = syllabusTerms.length || 1;
+        const progressPercent = Math.max(0, Math.min(100, ((currentTermIndex + 1) / totalTerms) * 100));
+
+        if (progressFill) {
+            progressFill.style.width = progressPercent.toFixed(2) + '%';
+        }
+
+        if (progressText) {
+            progressText.textContent = 'Lesson ' + (currentTermIndex + 1) + ' of ' + totalTerms;
+        }
+    }
+
+    async function persistSyllabusProgress(options) {
+        const config = options || {};
+        if (!progressUrl || progressRequestInFlight) {
+            return false;
+        }
+
+        progressRequestInFlight = true;
+
+        try {
+            const response = await fetch(progressUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': getCsrfToken(),
+                },
+                body: JSON.stringify({
+                    current_term_index: currentTermIndex,
+                    completed: Boolean(config.completed),
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Progress save failed');
+            }
+
+            return true;
+        } catch (error) {
+            renderDetectionMessage('Unable to save your lesson progress right now.', 'warning');
+            return false;
+        } finally {
+            progressRequestInFlight = false;
+        }
     }
 
     async function loadReferenceVideo() {
@@ -290,7 +357,7 @@
             const firstVideo = sequence[0];
 
             if (!firstVideo || !firstVideo.src) {
-                videoShell.innerHTML = '<div class="syllabus-video-shell__loading">No SignASL video found for this lesson yet.</div>';
+                videoShell.innerHTML = '<div class="syllabus-video-shell__loading">No reference video found for this lesson yet.</div>';
                 return;
             }
 
@@ -301,7 +368,7 @@
                 video.poster = firstVideo.poster;
             }
         } catch (error) {
-            videoShell.innerHTML = '<div class="syllabus-video-shell__loading">Unable to load the SignASL reference video.</div>';
+            videoShell.innerHTML = '<div class="syllabus-video-shell__loading">Unable to load the reference video.</div>';
         }
     }
 
@@ -727,13 +794,37 @@
         });
     }
 
+    if (pauseButton) {
+        pauseButton.addEventListener('click', async function () {
+            pauseButton.disabled = true;
+            renderDetectionMessage('Saving your lesson progress...', 'idle');
+            stopCamera();
+
+            const wasSaved = await persistSyllabusProgress();
+            pauseButton.disabled = false;
+
+            if (!wasSaved) {
+                void startCamera();
+                return;
+            }
+
+            if (returnUrl) {
+                window.location.href = returnUrl;
+            }
+        });
+    }
+
     if (proceedButton) {
-        proceedButton.addEventListener('click', function () {
+        proceedButton.addEventListener('click', async function () {
             if (currentTermIndex >= syllabusTerms.length - 1) {
                 hideProceedButton();
+                void persistSyllabusProgress({ completed: true });
                 renderDetectionMessage('All signs in this syllabus are completed.', 'success');
                 if (cameraStatus) {
                     cameraStatus.textContent = 'Syllabus complete.';
+                }
+                if (lessonStatus) {
+                    lessonStatus.textContent = 'Syllabus complete';
                 }
                 return;
             }
@@ -745,6 +836,7 @@
             hideProceedButton();
             updateLessonLabels();
             renderDetectionMessage('Show your hand to start detection.', 'idle');
+            void persistSyllabusProgress();
             void loadReferenceVideo();
             void startCamera();
         });

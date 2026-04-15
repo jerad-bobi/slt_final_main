@@ -9,7 +9,7 @@ from django.db.models import Count, Max
 from django.http import JsonResponse
 from django.shortcuts import render
 
-from accounts.models import Account, BrainQuizAttempt, SkeletalSignSample
+from accounts.models import Account, BrainQuizAttempt, SkeletalSignSample, SyllabusProgress
 
 from .skeletal_classifier_service import normalize_landmarks, predict_sign_from_landmarks
 from .signasl_service import QUIZ_TERMS, get_quiz_question_from_terms, lookup_text
@@ -18,6 +18,14 @@ from .signasl_service import QUIZ_TERMS, get_quiz_question_from_terms, lookup_te
 BRAIN_QUIZ_SEEN_TERMS = 'brain_quiz_seen_terms'
 SESSION_ACCOUNT_ID = 'account_id'
 SKELETAL_CAPTURE_MAX_BYTES = 5 * 1024 * 1024
+SYLLABUS_PROGRESS_SESSION_KEY = 'syllabus_progress'
+LETTERS_AND_NUMBERS_SYLLABUS_KEY = 'letters-and-numbers'
+AMBIGUOUS_SIGN_CONTEXTS = {
+    frozenset({'2', 'V'}): {
+        'alphabet': 'V',
+        'numbers': '2',
+    },
+}
 
 
 def _normalize_sign_folder_name(raw_name: str) -> str:
@@ -26,16 +34,100 @@ def _normalize_sign_folder_name(raw_name: str) -> str:
     return cleaned[:64]
 
 
+def _get_letters_and_numbers_terms() -> list[str]:
+    return list(string.ascii_uppercase) + [str(number) for number in range(10)]
+
+
+def _clamp_syllabus_term_index(raw_index, terms: list[str]) -> int:
+    if not terms:
+        return 0
+
+    try:
+        index = int(raw_index)
+    except (TypeError, ValueError):
+        index = 0
+
+    return max(0, min(index, len(terms) - 1))
+
+
+def _build_syllabus_progress_payload(terms: list[str], progress) -> dict | None:
+    if not progress or not terms:
+        return None
+
+    current_term_index = _clamp_syllabus_term_index(progress.get('current_term_index', 0), terms)
+    return {
+        'current_term_index': current_term_index,
+        'current_term': terms[current_term_index],
+        'total_terms': len(terms),
+        'updated_at': progress.get('updated_at'),
+    }
+
+
+def _normalize_prediction_context(raw_context) -> str:
+    context = str(raw_context or '').strip().lower()
+    if context in {'alphabet', 'numbers'}:
+        return context
+    return 'general'
+
+
+def _apply_prediction_context(result: dict, prediction_context: str) -> dict:
+    if prediction_context == 'general' or not result.get('ok'):
+        result['prediction_context'] = prediction_context
+        return result
+
+    predicted_sign = str(result.get('predicted_sign') or '').strip()
+    candidates = result.get('candidates')
+    candidate_signs = []
+    if isinstance(candidates, list):
+        for candidate in candidates:
+            sign = str(candidate.get('sign') or '').strip()
+            if sign:
+                candidate_signs.append(sign)
+
+    candidate_signs.append(predicted_sign)
+
+    for ambiguous_group, context_map in AMBIGUOUS_SIGN_CONTEXTS.items():
+        matched_signs = [sign for sign in candidate_signs if sign in ambiguous_group]
+        if not matched_signs:
+            continue
+
+        resolved_sign = context_map.get(prediction_context)
+        if not resolved_sign or resolved_sign not in ambiguous_group:
+            continue
+
+        result['raw_predicted_sign'] = predicted_sign
+        result['predicted_sign'] = resolved_sign
+        result['prediction_context'] = prediction_context
+        result['resolved_by_context'] = True
+
+        if isinstance(candidates, list):
+            matching_candidate = next((candidate for candidate in candidates if str(candidate.get('sign') or '').strip() == resolved_sign), None)
+            if matching_candidate:
+                result['confidence'] = matching_candidate.get('confidence', result.get('confidence'))
+                result['confidence_percent'] = matching_candidate.get('confidence_percent', result.get('confidence_percent'))
+                result['distance'] = matching_candidate.get('distance', result.get('distance'))
+                result['matched_samples'] = matching_candidate.get('samples', result.get('matched_samples'))
+
+        return result
+
+    result['prediction_context'] = prediction_context
+    return result
+
+
 def home(request):
     return render(request, 'home.html', {'active_page': 'home'})
 
 
 def sharpen_your_brain(request):
+    letters_and_numbers_terms = _get_letters_and_numbers_terms()
+    letters_and_numbers_progress = _get_syllabus_progress(request, LETTERS_AND_NUMBERS_SYLLABUS_KEY, letters_and_numbers_terms)
+
     return render(
         request,
         'sharpen_your_brain.html',
         {
             'active_page': 'brain',
+            'letters_and_numbers_progress': letters_and_numbers_progress,
         },
     )
 
@@ -134,6 +226,10 @@ def predict_skeletal_sign(request):
     if not result.get('ok'):
         return JsonResponse(result, status=400)
 
+    prediction_context = _normalize_prediction_context(payload.get('prediction_context'))
+    result = _apply_prediction_context(result, prediction_context)
+    return JsonResponse(result)
+
     return JsonResponse(result)
 
 
@@ -147,6 +243,74 @@ def _get_current_account(request):
     except Account.DoesNotExist:
         request.session.pop(SESSION_ACCOUNT_ID, None)
         return None
+
+
+def _get_syllabus_progress(request, syllabus_key: str, terms: list[str]) -> dict | None:
+    account = _get_current_account(request)
+    if account:
+        progress = (
+            SyllabusProgress.objects.filter(account=account, syllabus_key=syllabus_key)
+            .values('current_term_index', 'updated_at')
+            .first()
+        )
+        if progress:
+            updated_at = progress.get('updated_at')
+            progress['updated_at'] = updated_at.isoformat() if updated_at else None
+        return _build_syllabus_progress_payload(terms, progress)
+
+    session_progress = request.session.get(SYLLABUS_PROGRESS_SESSION_KEY, {})
+    progress = session_progress.get(syllabus_key)
+    return _build_syllabus_progress_payload(terms, progress)
+
+
+def _save_syllabus_progress(request, syllabus_key: str, terms: list[str], current_term_index: int) -> dict:
+    clamped_index = _clamp_syllabus_term_index(current_term_index, terms)
+    progress_payload = {
+        'current_term_index': clamped_index,
+        'current_term': terms[clamped_index],
+        'total_terms': len(terms),
+    }
+
+    account = _get_current_account(request)
+    if account:
+        progress, _ = SyllabusProgress.objects.update_or_create(
+            account=account,
+            syllabus_key=syllabus_key,
+            defaults=progress_payload,
+        )
+        return {
+            'current_term_index': clamped_index,
+            'current_term': progress.current_term,
+            'total_terms': progress.total_terms,
+            'updated_at': progress.updated_at.isoformat(),
+        }
+
+    session_progress = request.session.get(SYLLABUS_PROGRESS_SESSION_KEY, {})
+    session_progress[syllabus_key] = {
+        'current_term_index': clamped_index,
+        'updated_at': None,
+    }
+    request.session[SYLLABUS_PROGRESS_SESSION_KEY] = session_progress
+    request.session.modified = True
+    return {
+        'current_term_index': clamped_index,
+        'current_term': terms[clamped_index],
+        'total_terms': len(terms),
+        'updated_at': None,
+    }
+
+
+def _clear_syllabus_progress(request, syllabus_key: str) -> None:
+    account = _get_current_account(request)
+    if account:
+        SyllabusProgress.objects.filter(account=account, syllabus_key=syllabus_key).delete()
+        return
+
+    session_progress = request.session.get(SYLLABUS_PROGRESS_SESSION_KEY, {})
+    if syllabus_key in session_progress:
+        session_progress.pop(syllabus_key, None)
+        request.session[SYLLABUS_PROGRESS_SESSION_KEY] = session_progress
+        request.session.modified = True
 
 
 def brain_quiz_question(request):
@@ -254,6 +418,28 @@ def brain_quiz_leaderboard(request):
     )
 
 
+def save_syllabus_progress(request, syllabus_key: str):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed.'}, status=405)
+
+    if syllabus_key != LETTERS_AND_NUMBERS_SYLLABUS_KEY:
+        return JsonResponse({'error': 'Unknown syllabus.'}, status=404)
+
+    terms = _get_letters_and_numbers_terms()
+
+    try:
+        payload = json.loads(request.body.decode('utf-8'))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return JsonResponse({'error': 'Invalid request body.'}, status=400)
+
+    if bool(payload.get('completed')):
+        _clear_syllabus_progress(request, syllabus_key)
+        return JsonResponse({'saved': True, 'completed': True})
+
+    progress = _save_syllabus_progress(request, syllabus_key, terms, payload.get('current_term_index', 0))
+    return JsonResponse({'saved': True, 'completed': False, 'progress': progress})
+
+
 def learn_vocabularies(request):
     return render(
         request,
@@ -265,7 +451,9 @@ def learn_vocabularies(request):
 
 
 def syllabus_letters_and_numbers(request):
-    syllabus_terms = list(string.ascii_uppercase) + [str(number) for number in range(10)]
+    syllabus_terms = _get_letters_and_numbers_terms()
+    progress = _get_syllabus_progress(request, LETTERS_AND_NUMBERS_SYLLABUS_KEY, syllabus_terms)
+    initial_term_index = progress['current_term_index'] if progress else 0
 
     return render(
         request,
@@ -276,7 +464,9 @@ def syllabus_letters_and_numbers(request):
             'page_title': 'Letters and Numbers',
             'page_description': 'Learn the core sign vocabulary for letters and numbers.',
             'cutscene_caption': 'Loading alphabet and number signs...',
-            'lesson_term': syllabus_terms[0],
+            'lesson_term': syllabus_terms[initial_term_index],
+            'initial_term_index': initial_term_index,
+            'syllabus_progress': progress,
             'syllabus_terms': syllabus_terms,
         },
     )

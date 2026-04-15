@@ -57,3 +57,26 @@ class SkeletalSignSample(models.Model):
 
     def __str__(self) -> str:
         return f'{self.sign_folder} sample {self.id}'
+
+
+class SyllabusProgress(models.Model):
+    account = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+        related_name='syllabus_progress_entries',
+    )
+    syllabus_key = models.CharField(max_length=64)
+    current_term_index = models.PositiveIntegerField(default=0)
+    current_term = models.CharField(max_length=32)
+    total_terms = models.PositiveIntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'syllabus_progress'
+        ordering = ['-updated_at']
+        constraints = [
+            models.UniqueConstraint(fields=['account', 'syllabus_key'], name='unique_syllabus_progress_per_user'),
+        ]
+
+    def __str__(self) -> str:
+        return f'{self.account.username} {self.syllabus_key} lesson {self.current_term_index + 1}'

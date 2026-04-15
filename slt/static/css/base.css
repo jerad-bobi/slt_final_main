@@ -38,7 +38,7 @@ html { scroll-behavior: smooth; }
 body {
     font-family: 'VT323', monospace;
     font-size: 1.38rem;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.04em;
     background:
         radial-gradient(circle at 15% 10%, rgba(104, 90, 255, 0.2), transparent 28%),
         radial-gradient(circle at 86% 24%, rgba(255, 207, 64, 0.17), transparent 30%),
@@ -101,7 +101,7 @@ button, input, textarea, select { font: inherit; }
 .nav-brand {
     font-size: 0.9rem;
     font-weight: 800;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -134,7 +134,7 @@ button, input, textarea, select { font: inherit; }
     font-weight: 500;
     color: var(--text-muted);
     transition: color 0.3s;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
 }
 
@@ -162,7 +162,7 @@ button, input, textarea, select { font: inherit; }
     cursor: pointer;
     border: none;
     transition: all 0.3s ease;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
     text-decoration: none;
     text-transform: uppercase;
     border: 2px solid #000;
@@ -291,7 +291,7 @@ button, input, textarea, select { font: inherit; }
     font-weight: 500;
     color: var(--accent);
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.12em;
     margin-bottom: 16px;
 }
 
@@ -309,7 +309,7 @@ button, input, textarea, select { font: inherit; }
 .section-title {
     font-size: clamp(2rem, 4.5vw, 3.2rem);
     font-weight: 800;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.05em;
     line-height: 1.06;
     margin-bottom: 16px;
     text-transform: uppercase;

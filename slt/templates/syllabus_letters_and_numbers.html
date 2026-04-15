@@ -41,13 +41,26 @@
     <p class="lead-copy">Start with the first sign: the letter A. Watch the reference sign, then imitate it with your camera.</p>
 </section>
 
-<section class="syllabus-lesson panel-surface" data-lookup-url="{% url 'signasl_lookup' %}" data-predict-url="{% url 'predict_skeletal_sign' %}" data-term="{{ lesson_term }}">
+<section class="syllabus-progress panel-surface" aria-label="Lesson progress">
+    <div class="syllabus-progress__header">
+        <div>
+            <h2>Lesson progress</h2>
+            <p id="syllabus-progress-text">Lesson {{ initial_term_index|add:1 }} of {{ syllabus_terms|length }}</p>
+        </div>
+        <button class="button button--secondary" type="button" id="syllabus-pause-button">Pause and return to quiz</button>
+    </div>
+    <div class="syllabus-progress__track" aria-hidden="true">
+        <span class="syllabus-progress__fill" id="syllabus-progress-fill"></span>
+    </div>
+</section>
+
+<section class="syllabus-lesson panel-surface" data-lookup-url="{% url 'signasl_lookup' %}" data-predict-url="{% url 'predict_skeletal_sign' %}" data-progress-url="{% url 'save_syllabus_progress' 'letters-and-numbers' %}" data-return-url="{% url 'sharpen_your_brain' %}" data-term="{{ lesson_term }}" data-initial-index="{{ initial_term_index }}">
     <div class="syllabus-lesson__header">
         <div>
             <h2 id="syllabus-lesson-title">Sign Lesson: {{ lesson_term }}</h2>
             <p>Reference on the left, camera practice on the right.</p>
         </div>
-        <span class="status-pill">Lesson 1</span>
+        <span class="status-pill" id="syllabus-lesson-status">Lesson {{ initial_term_index|add:1 }}</span>
     </div>
 
     <div class="syllabus-lesson__grid">

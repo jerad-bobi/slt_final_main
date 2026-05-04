@@ -120,7 +120,6 @@ _SYLLABUS_URL_NAMES = {
     'greetings-and-personal': 'syllabus_greetings_and_personal',
     'polite-phrases': 'syllabus_polite_phrases',
     'daily-life': 'syllabus_daily_life',
-    'basic-adjectives': 'syllabus_basic_adjectives',
 }
 
 
@@ -620,20 +619,6 @@ def syllabus_daily_life(request):
             'page_title': 'Daily Life',
             'page_description': 'Explore practical signs used in routine day-to-day activities.',
             'cutscene_caption': 'Loading daily routine sign missions...',
-        },
-    )
-
-
-def syllabus_basic_adjectives(request):
-    return render(
-        request,
-        'page.html',
-        {
-            'active_page': 'brain',
-            'is_syllabus': True,
-            'page_title': 'Basic Adjectives',
-            'page_description': 'Study beginner adjective signs for common descriptions.',
-            'cutscene_caption': 'Generating descriptive sign challenges...',
         },
     )
 

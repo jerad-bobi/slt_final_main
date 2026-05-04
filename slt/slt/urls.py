@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from accounts.views import about_me, account_access, login_view, logout_view, register_view
+from accounts.views import about_me, account_access, forgot_password_view, login_view, logout_view, register_view
 from .views import (
     brain_quiz_attempt_save,
     brain_quiz_leaderboard,
@@ -62,6 +62,7 @@ urlpatterns = [
     path('register/', register_view, name='register'),
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
+    path('forgot-password/', forgot_password_view, name='forgot_password'),
     path('about-me/', about_me, name='about_me'),
     path('admin/', admin.site.urls),
 ]

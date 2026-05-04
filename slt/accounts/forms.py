@@ -54,3 +54,30 @@ class LoginForm(forms.Form):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'auth-input'})
+
+
+class ForgotPasswordForm(forms.Form):
+    username = forms.CharField(max_length=150)
+    new_password = forms.CharField(widget=forms.PasswordInput)
+    confirm_password = forms.CharField(widget=forms.PasswordInput)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'auth-input'})
+
+    def clean(self):
+        cleaned_data = super().clean()
+        new_password = cleaned_data.get('new_password')
+        confirm_password = cleaned_data.get('confirm_password')
+
+        if new_password and confirm_password and new_password != confirm_password:
+            self.add_error('confirm_password', 'Passwords do not match.')
+
+        if new_password and not self.errors.get('new_password'):
+            try:
+                validate_password(new_password)
+            except forms.ValidationError as error:
+                self.add_error('new_password', error)
+
+        return cleaned_data

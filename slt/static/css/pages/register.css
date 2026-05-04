@@ -1,15 +1,24 @@
 .register-layout {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
 }
 
 .register-form-card {
-    padding: 36px;
-    max-width: 760px;
+    padding: 44px 40px;
+    max-width: 680px;
+    width: 100%;
     margin: 0 auto;
 }
 
 .register-form-card__intro {
-    margin-bottom: 20px;
+    margin-bottom: 28px;
+    text-align: center;
+}
+
+.register-form-card__intro .eyebrow {
+    justify-content: center;
 }
 
 .auth-form--register {
@@ -22,8 +31,7 @@
     grid-column: 1 / -1;
 }
 
-@media (max-width: 768px) {
-    .auth-form--register {
-        grid-template-columns: 1fr;
-    }
+@media (max-width: 680px) {
+    .register-form-card { padding: 32px 24px; }
+    .auth-form--register { grid-template-columns: 1fr; }
 }

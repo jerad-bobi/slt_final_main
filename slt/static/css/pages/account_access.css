@@ -1,34 +1,36 @@
+.access-hero {
+    margin-bottom: 28px;
+}
+
 .access-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
-}
-
-.access-hero {
-    margin-bottom: 24px;
+    gap: 16px;
+    max-width: 640px;
+    margin: 0 auto;
 }
 
 .access-card {
-    padding: 28px;
+    padding: 36px 32px;
     display: grid;
-    gap: 18px;
+    gap: 20px;
     align-content: start;
+    border-radius: var(--radius);
+    text-align: center;
 }
 
 .access-card h2 {
     margin: 0;
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: 800;
     letter-spacing: -0.03em;
 }
 
 .access-card--primary {
-    background: linear-gradient(160deg, var(--surface-2), var(--surface-3));
     border-color: var(--accent-border);
+    background: linear-gradient(160deg, rgba(79, 128, 255, 0.1) 0%, rgba(11, 20, 40, 0.95) 100%);
 }
 
-@media (max-width: 768px) {
-    .access-grid {
-        grid-template-columns: 1fr;
-    }
+@media (max-width: 600px) {
+    .access-grid { grid-template-columns: 1fr; }
 }

@@ -350,6 +350,11 @@ async function clearSearchHistory() {
 }
 
 function getCsrfToken() {
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    if (metaTag) {
+        return metaTag.getAttribute('content');
+    }
+    // Fallback to cookie method if meta tag is not available
     const cookieValue = document.cookie
         .split('; ')
         .find((row) => row.startsWith('csrftoken='));

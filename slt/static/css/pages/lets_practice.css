@@ -6,7 +6,20 @@
     padding: 28px;
 }
 
-.translator-shell__header,
+.translator-shell__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.translator-shell__header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
 .translator-topbar,
 .translator-panel__header {
     display: flex;
@@ -16,22 +29,22 @@
 }
 
 .translator-topbar {
-    margin: 22px 0 16px;
-    padding: 14px 16px;
+    margin: 20px 0 16px;
+    padding: 12px 18px;
     border-radius: var(--radius-sm);
-    background: var(--surface-2);
+    background: var(--surface-3);
     border: 1px solid var(--border-subtle);
 }
 
-.translator-mode,
-.translator-panel__header h2 {
+.translator-mode {
     font-weight: 700;
+    font-size: 0.9rem;
 }
 
 .translator-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
+    gap: 16px;
 }
 
 .translator-panel {
@@ -42,18 +55,19 @@
 }
 
 .translator-panel__header {
-    margin-bottom: 16px;
+    margin-bottom: 14px;
 }
 
 .translator-panel__header h2 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
+    font-weight: 700;
     letter-spacing: -0.02em;
 }
 
 .translator-panel__header span {
     color: var(--text-muted);
-    font-size: 13px;
+    font-size: 0.8rem;
 }
 
 .mode-block {
@@ -69,22 +83,22 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 44px;
-    padding: 0 18px;
+    min-height: 40px;
+    padding: 0 16px;
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-pill);
     background: var(--surface-3);
     color: var(--text-primary);
     cursor: pointer;
-    font-size: 13px;
+    font-size: 0.8rem;
     font-weight: 600;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .swap-button:hover,
 .capture-button:hover {
-    background: rgba(255,255,255,0.08);
-    border-color: rgba(255,255,255,0.1);
+    background: var(--surface-4);
+    border-color: var(--border-strong);
 }
 
 .capture-controls {
@@ -102,11 +116,11 @@
     display: inline-block;
     margin-bottom: 6px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.06em;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--accent);
+    color: var(--accent-light);
 }
 
 .capture-sign-name-input {
@@ -117,7 +131,14 @@
     border-radius: var(--radius-sm);
     background: var(--surface-2);
     color: var(--text-primary);
-    font-size: 14px;
+    font-size: 0.9rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.capture-sign-name-input:focus {
+    outline: none;
+    border-color: var(--accent-border);
+    box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 select.capture-sign-name-input {
@@ -136,16 +157,17 @@ select.capture-sign-name-input {
 .capture-sign-name-input:disabled {
     background: var(--surface-3);
     color: var(--text-muted);
+    cursor: not-allowed;
 }
 
 .capture-button--active {
-    background: rgba(255,107,107,0.15);
+    background: var(--accent-soft);
     border-color: var(--accent-border);
-    color: var(--accent);
+    color: var(--accent-light);
 }
 
 .swap-button__icon {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
 }
 
 .sign-preview,
@@ -166,7 +188,7 @@ select.capture-sign-name-input {
 .sign-preview__empty-state,
 .sign-result-card--loading {
     width: calc(100% - 32px);
-    height: 220px;
+    height: 200px;
     border-radius: var(--radius-sm);
     background: linear-gradient(90deg, var(--surface-2), var(--surface-3), var(--surface-2));
     background-size: 200% 100%;
@@ -196,7 +218,7 @@ select.capture-sign-name-input {
     position: relative;
     overflow: hidden;
     border-radius: var(--radius-sm);
-    background: #0a0a10;
+    background: #050810;
 }
 
 .camera-preview {
@@ -218,12 +240,12 @@ select.capture-sign-name-input {
     position: absolute;
     inset: auto 16px 16px 16px;
     display: none;
-    padding: 12px 14px;
+    padding: 10px 14px;
     border-radius: var(--radius-sm);
-    background: rgba(30, 30, 36, 0.85);
+    background: rgba(12, 18, 40, 0.88);
     backdrop-filter: blur(8px);
     color: var(--text-primary);
-    font-size: 13px;
+    font-size: 0.82rem;
 }
 
 .camera-status--visible {
@@ -233,10 +255,10 @@ select.capture-sign-name-input {
 .capture-mark {
     margin-bottom: 12px;
     font-family: 'JetBrains Mono', monospace;
-    color: var(--accent);
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
+    color: var(--accent-light);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
 }
 
@@ -247,7 +269,8 @@ select.capture-sign-name-input {
 
 .translated-text-box {
     color: var(--text-muted);
-    font-size: 15px;
+    font-size: 0.95rem;
+    line-height: 1.6;
 }
 
 .translated-text-box[data-tone='success'] {

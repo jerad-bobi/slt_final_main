@@ -8,6 +8,7 @@ from django.db import transaction
 from django.db.models import Count, Max
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.urls import reverse
 
 from accounts.models import Account, BrainQuizAttempt, SearchHistory, SkeletalSignSample, SyllabusProgress
 
@@ -114,8 +115,55 @@ def _apply_prediction_context(result: dict, prediction_context: str) -> dict:
     return result
 
 
+_SYLLABUS_URL_NAMES = {
+    'letters-and-numbers': 'syllabus_letters_and_numbers',
+    'greetings-and-personal': 'syllabus_greetings_and_personal',
+    'polite-phrases': 'syllabus_polite_phrases',
+    'daily-life': 'syllabus_daily_life',
+    'basic-adjectives': 'syllabus_basic_adjectives',
+}
+
+
 def home(request):
-    return render(request, 'home.html', {'active_page': 'home'})
+    context = {'active_page': 'home'}
+    account_id = request.session.get(SESSION_ACCOUNT_ID)
+    if account_id:
+        try:
+            account = Account.objects.get(id=account_id)
+            best = account.brain_quiz_attempts.aggregate(Max('score'))['score__max']
+
+            raw_searches = list(
+                SearchHistory.objects
+                .filter(account=account)
+                .order_by('-searched_at')
+                .values_list('search_term', flat=True)[:30]
+            )
+            seen = set()
+            recent_searches = []
+            for term in raw_searches:
+                if term not in seen:
+                    seen.add(term)
+                    recent_searches.append(term)
+                if len(recent_searches) >= 5:
+                    break
+
+            syllabus_progress = account.syllabus_progress_entries.first()
+            syllabus_url = None
+            if syllabus_progress:
+                url_name = _SYLLABUS_URL_NAMES.get(syllabus_progress.syllabus_key, 'syllabus_letters_and_numbers')
+                syllabus_url = reverse(url_name)
+
+            context.update({
+                'dashboard_user': account,
+                'best_score': best or 0,
+                'total_attempts': account.brain_quiz_attempts.count(),
+                'recent_searches': recent_searches,
+                'syllabus_progress': syllabus_progress,
+                'syllabus_url': syllabus_url,
+            })
+        except Account.DoesNotExist:
+            pass
+    return render(request, 'home.html', context)
 
 
 def sharpen_your_brain(request):

@@ -8,7 +8,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
 
-from .forms import LoginForm, RegisterForm
+from .forms import ForgotPasswordForm, LoginForm, RegisterForm
 from .models import Account, BrainQuizAttempt
 
 
@@ -206,6 +206,36 @@ def login_view(request: HttpRequest) -> HttpResponse:
 def logout_view(request: HttpRequest) -> HttpResponse:
     request.session.flush()
     return redirect('account_access')
+
+
+def forgot_password_view(request: HttpRequest) -> HttpResponse:
+    form = ForgotPasswordForm(request.POST or None)
+    forgot_password_message = None
+    forgot_password_error = None
+
+    if request.method == 'POST' and form.is_valid():
+        username = form.cleaned_data['username'].strip()
+        new_password = form.cleaned_data['new_password']
+
+        try:
+            account = Account.objects.get(username__iexact=username)
+            account.password = make_password(new_password)
+            account.save(update_fields=['password'])
+            forgot_password_message = 'Password updated successfully! You can now login with your new password.'
+            form = ForgotPasswordForm()
+        except Account.DoesNotExist:
+            forgot_password_error = 'Username not found.'
+
+    return render(
+        request,
+        'forgot_password.html',
+        {
+            'active_page': 'about',
+            'form': form,
+            'forgot_password_message': forgot_password_message,
+            'forgot_password_error': forgot_password_error,
+        },
+    )
 
 
 def about_me(request: HttpRequest) -> HttpResponse:

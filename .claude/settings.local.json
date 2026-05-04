@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\parag\\\\Desktop\\\\slt_final_main\\\\slt\" -Recurse)",
+      "Bash(Select-Object FullName)",
+      "Bash(ConvertTo-Csv -NoTypeInformation)",
+      "Bash(Select-Object -Skip 1)"
+    ]
+  }
+}

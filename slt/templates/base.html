@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Sign Language Translator{% endblock %}</title>
+    <title>{% block title %}Handspeak Atlas{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
@@ -16,8 +16,8 @@
     <nav class="navbar" id="navbar">
         <div class="container">
             <a href="{% url 'home' %}" class="nav-brand" aria-label="Go to homepage">
-                <span class="brand-icon">SL</span>
-                Handspeak Atlas
+                <span class="brand-icon">HA</span>
+                <span class="brand-name">Handspeak Atlas</span>
             </a>
             <ul class="nav-links" id="navLinks">
                 <li><a href="{% url 'home' %}" class="{% if active_page == 'home' %}nav-link--active{% endif %}">Home</a></li>
@@ -42,6 +42,25 @@
             {% block content %}{% endblock %}
         </div>
     </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-inner">
+                <a href="{% url 'home' %}" class="footer-brand">
+                    <span class="brand-icon brand-icon--sm">HA</span>
+                    <span>Handspeak Atlas</span>
+                </a>
+                <nav class="footer-nav" aria-label="Footer navigation">
+                    <a href="{% url 'home' %}">Home</a>
+                    <a href="{% url 'learn_vocabularies' %}">Vocabulary</a>
+                    <a href="{% url 'lets_practice' %}">Practice</a>
+                    <a href="{% url 'sharpen_your_brain' %}">Quiz</a>
+                    <a href="{% url 'account_access' %}">Account</a>
+                </nav>
+                <p class="footer-copy">&copy; 2025 Handspeak Atlas</p>
+            </div>
+        </div>
+    </footer>
 
     <script>
     (function(){

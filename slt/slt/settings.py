@@ -107,7 +107,7 @@ if DEBUG:
     }
 else:
     # Production: Parse MySQL connection from environment
-    MYSQL_URL = os.environ.get('mysql://root:NBFAckMEijKOZYOGwWkZWCyFaEDfDtzT@shuttle.proxy.rlwy.net:41184/railway')
+    MYSQL_URL = os.environ.get('MYSQL_URL')
     if MYSQL_URL:
         # Parse from MYSQL_URL format: mysql://user:password@host:port/database
         from urllib.parse import urlparse

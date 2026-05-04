@@ -23,48 +23,26 @@
     </div>
 </section>
 
-<!-- ===== SYLLABUS ===== -->
-<section class="brain-syllabus panel-surface" aria-label="Syllabus topics">
-	<div class="brain-syllabus-header">
-		<p class="eyebrow">Study First</p>
-		<h2 class="brain-syllabus-title">Choose a Lesson</h2>
-		<p class="brain-syllabus-sub">Pick a topic to study before taking the quiz.</p>
-	</div>
-
-	{% if letters_and_numbers_progress %}
-	<div class="brain-resume-card">
-		<div class="brain-resume-icon">↩</div>
-		<div class="brain-resume-body">
-			<p class="brain-resume-eyebrow">Saved lesson</p>
-			<h3 class="brain-resume-name">Continue Letters and Numbers</h3>
-			<p class="brain-resume-desc">Paused at lesson {{ letters_and_numbers_progress.current_term_index|add:1 }} of {{ letters_and_numbers_progress.total_terms }} — <strong>{{ letters_and_numbers_progress.current_term }}</strong></p>
-		</div>
-		<a class="btn btn-primary" href="{% url 'syllabus_letters_and_numbers' %}">Continue →</a>
-	</div>
-	{% endif %}
-
-	<div class="brain-syllabus-grid">
-		<a class="syllabus-card" href="{% url 'syllabus_letters_and_numbers' %}">
-			<span class="syllabus-card-icon">🔤</span>
-			<span class="syllabus-card-name">Letters and Numbers</span>
-			<span class="syllabus-card-arrow">→</span>
-		</a>
-		<a class="syllabus-card syllabus-card--green" href="{% url 'syllabus_greetings_and_personal' %}">
-			<span class="syllabus-card-icon">👋</span>
-			<span class="syllabus-card-name">Greetings and Personal</span>
-			<span class="syllabus-card-arrow">→</span>
-		</a>
-		<a class="syllabus-card syllabus-card--purple" href="{% url 'syllabus_polite_phrases' %}">
-			<span class="syllabus-card-icon">🤝</span>
-			<span class="syllabus-card-name">Polite Phrases</span>
-			<span class="syllabus-card-arrow">→</span>
-		</a>
-		<a class="syllabus-card syllabus-card--amber" href="{% url 'syllabus_daily_life' %}">
-			<span class="syllabus-card-icon">🏠</span>
-			<span class="syllabus-card-name">Daily Life</span>
-			<span class="syllabus-card-arrow">→</span>
-		</a>
-	</div>
+<section class="panel-surface brain-syllabus" aria-label="Syllabus topics">
+    <h2>Choose a syllabus</h2>
+    <p class="lead-copy">Select one topic to learn before taking the quiz.</p>
+    {% if letters_and_numbers_progress %}
+    <div class="brain-syllabus__resume-card">
+        <div>
+            <p class="brain-syllabus__resume-eyebrow">Saved lesson</p>
+            <h3>Continue Letters and Numbers</h3>
+            <p>You paused at lesson {{ letters_and_numbers_progress.current_term_index|add:1 }} of {{ letters_and_numbers_progress.total_terms }} on {{ letters_and_numbers_progress.current_term }}.</p>
+        </div>
+        <a class="button button--primary" href="{% url 'syllabus_letters_and_numbers' %}">Continue lesson</a>
+    </div>
+    {% endif %}
+    <div class="brain-syllabus__grid">
+        <a class="button button--secondary" href="{% url 'syllabus_letters_and_numbers' %}">Letters and Numbers</a>
+        <a class="button button--secondary" href="{% url 'syllabus_greetings_and_personal' %}">Greetings and Personal</a>
+        <a class="button button--secondary" href="{% url 'syllabus_polite_phrases' %}">Polite Phrases</a>
+        <a class="button button--secondary" href="{% url 'syllabus_daily_life' %}">Daily Life</a>
+        <a class="button button--secondary" href="{% url 'syllabus_basic_adjectives' %}">Basic Adjectives</a>
+    </div>
 </section>
 
 <section class="brain-leaderboard-layout" aria-label="Global quiz leaderboard">

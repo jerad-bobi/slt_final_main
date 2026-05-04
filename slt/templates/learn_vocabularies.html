@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Vocabulary{% endblock %}
+{% block title %}Learn Vocabularies{% endblock %}
+
 {% block body_class %}page--vocabulary{% endblock %}
 
 {% block extra_css %}
@@ -10,60 +11,32 @@
 {% endblock %}
 
 {% block content %}
-
-<!-- ===== HERO ===== -->
-<section class="vocab-hero" aria-label="Vocabulary page hero">
-	<div class="vocab-orb vocab-orb--a"></div>
-	<div class="vocab-orb vocab-orb--b"></div>
-	<div class="vocab-orb vocab-orb--c"></div>
-	<div class="vocab-grid-overlay"></div>
-	<div class="vocab-hero-inner">
-		<div class="vocab-badge">
-			<span class="vocab-badge-dot"></span>
-			Sign dictionary
-		</div>
-		<h1 class="vocab-hero-title">Search Any<br><span class="gradient-text">Sign</span></h1>
-		<p class="vocab-hero-sub">Enter a word, letter, or number to load video demonstrations from the sign dictionary.</p>
-		<div class="vocab-hero-tags">
-			<span class="vocab-tag">hello</span>
-			<span class="vocab-tag">A</span>
-			<span class="vocab-tag">thank you</span>
-			<span class="vocab-tag">1</span>
-			<span class="vocab-tag">please</span>
-			<span class="vocab-tag">love</span>
-		</div>
-	</div>
+<section class="vocab-hero panel-surface panel-surface--hero" aria-label="Learn vocabularies page">
+	<p class="eyebrow">Vocabulary</p>
+	<h1 class="display-title">Search for a word, letter, or number.</h1>
+	<p class="lead-copy">Enter a query to load sign results.</p>
 </section>
 
-<!-- ===== DICTIONARY ===== -->
 <section class="dictionary-layout">
-	<section class="dictionary-shell panel-surface"
-		data-lookup-url="{% url 'signasl_lookup' %}"
-		data-history-url="{% url 'get_search_history' %}"
-		data-clear-history-url="{% url 'clear_search_history' %}">
-
+	<section class="dictionary-shell panel-surface" data-lookup-url="{% url 'signasl_lookup' %}" data-history-url="{% url 'get_search_history' %}" data-clear-history-url="{% url 'clear_search_history' %}">
 		<div class="dictionary-shell__intro">
 			<div>
-				<p class="eyebrow">Sign Lookup</p>
-				<h2>What do you want to learn?</h2>
+				<h2>Sign lookup</h2>
 			</div>
 			<span class="status-pill">Live source</span>
 		</div>
 
 		<form class="dictionary-search" id="dictionary-search-form">
 			<label class="visually-hidden" for="dictionary-search-input">Search English words</label>
-			<div class="dictionary-search__input-wrap">
-				<span class="dictionary-search__icon" aria-hidden="true">🔍</span>
-				<input
-					id="dictionary-search-input"
-					class="dictionary-search__input"
-					type="search"
-					name="query"
-					placeholder="Try hello, B, or 24…"
-					autocomplete="off"
-					spellcheck="false"
-				>
-			</div>
+			<input
+				id="dictionary-search-input"
+				class="dictionary-search__input"
+				type="search"
+				name="query"
+				placeholder="Try hello, B, or 24"
+				autocomplete="off"
+				spellcheck="false"
+			>
 			<button class="dictionary-search__button" type="submit">Search</button>
 		</form>
 
@@ -75,7 +48,6 @@
 				</div>
 				<div class="dictionary-results__body" id="dictionary-results-body">
 					<div class="dictionary-empty-state">
-						<span class="dictionary-empty-icon">📖</span>
 						Search a word to see sign results.
 					</div>
 				</div>
@@ -88,14 +60,13 @@
 					<button class="dictionary-history__clear" id="clear-history-btn" type="button">Clear</button>
 				</div>
 				<div class="dictionary-history__body" id="dictionary-history-body">
-					<div class="dictionary-empty-state dictionary-empty-state--sm">No history yet.</div>
+					<div class="dictionary-empty-state">No search history yet.</div>
 				</div>
 			</aside>
 			{% endif %}
 		</div>
 	</section>
 </section>
-
 {% endblock %}
 
 {% block scripts %}

@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block title %}Home{% endblock %}
+
 {% block body_class %}page--home{% endblock %}
 
 {% block extra_css %}
@@ -9,32 +10,14 @@
 {% endblock %}
 
 {% block content %}
-
-<!-- ===== HERO ===== -->
-<section class="home-hero" aria-label="Homepage hero">
-	<div class="hero-orb hero-orb--a"></div>
-	<div class="hero-orb hero-orb--b"></div>
-	<div class="hero-orb hero-orb--c"></div>
-	<div class="hero-grid-overlay"></div>
-	<div class="hero-inner">
-		<div class="hero-badge">
-			<span class="hero-badge-dot"></span>
-			Real-time sign recognition
-		</div>
-		<h1 class="hero-title">Learn ASL<br><span class="gradient-text">Your Way</span></h1>
-		<p class="hero-sub">Browse signs, practice with your camera, and test yourself — all in one place.</p>
-		{% if not dashboard_user %}
-		<div class="hero-cta">
-			<a href="{% url 'learn_vocabularies' %}" class="btn btn-primary btn-lg">Start Learning <span class="btn-arrow">→</span></a>
-			<a href="{% url 'account_access' %}" class="btn btn-ghost btn-lg">Create Account</a>
-		</div>
-		{% endif %}
-	</div>
+<section class="home-hero panel-surface panel-surface--hero" aria-label="Homepage content">
+	<p class="eyebrow">Welcome to ASL Learning</p>
+	<h1 class="display-title">Discover the World of American Sign Language</h1>
+	<p class="lead-copy">A visual language that connects communities, breaks barriers, and opens new pathways of communication.</p>
 </section>
 
-<!-- ===== DASHBOARD ===== -->
 {% if dashboard_user %}
-<section class="dashboard-section panel-surface" aria-label="Your progress">
+<section class="dashboard-section panel-surface" aria-label="Your progress dashboard">
 	<div class="dashboard-header">
 		<p class="eyebrow">Player Stats</p>
 		<h2 class="dashboard-greeting">WELCOME BACK, <span class="dashboard-name">{{ dashboard_user.real_name|upper }}</span></h2>
@@ -71,82 +54,134 @@
 </section>
 {% endif %}
 
-<!-- ===== HOW IT WORKS ===== -->
-<section class="how-section" aria-label="How to use Handspeak Atlas">
-	<div class="how-header">
-		<p class="eyebrow">How It Works</p>
-		<h2 class="how-title">Three steps to <span class="gradient-text">start signing</span></h2>
-	</div>
-	<div class="how-steps">
-		<a href="{% url 'learn_vocabularies' %}" class="step-card fade-up">
-			<div class="step-glow-bar"></div>
-			<div class="step-num">01</div>
-			<div class="step-icon-wrap">📚</div>
-			<h3 class="step-name">Look Up a Sign</h3>
-			<p class="step-desc">Search any word to see how it's signed — with handshape breakdowns and related terms.</p>
-			<span class="step-cta">Open Vocabulary <span class="step-arrow">→</span></span>
-		</a>
-
-		<div class="step-connector" aria-hidden="true">
-			<div class="step-connector-track"><div class="step-connector-shine"></div></div>
-		</div>
-
-		<a href="{% url 'lets_practice' %}" class="step-card step-card--green fade-up">
-			<div class="step-glow-bar step-glow-bar--green"></div>
-			<div class="step-num">02</div>
-			<div class="step-icon-wrap step-icon-wrap--green">✋</div>
-			<h3 class="step-name">Practice Live</h3>
-			<p class="step-desc">Allow camera access and sign along. Instant feedback shows exactly what the recognizer detects.</p>
-			<span class="step-cta step-cta--green">Start Practicing <span class="step-arrow">→</span></span>
-		</a>
-
-		<div class="step-connector step-connector--delay" aria-hidden="true">
-			<div class="step-connector-track"><div class="step-connector-shine"></div></div>
-		</div>
-
-		<a href="{% url 'sharpen_your_brain' %}" class="step-card step-card--purple fade-up">
-			<div class="step-glow-bar step-glow-bar--purple"></div>
-			<div class="step-num">03</div>
-			<div class="step-icon-wrap step-icon-wrap--purple">🎯</div>
-			<h3 class="step-name">Test Yourself</h3>
-			<p class="step-desc">Take a quiz and get scored. Your history is saved so you can track improvement over time.</p>
-			<span class="step-cta step-cta--purple">Take the Quiz <span class="step-arrow">→</span></span>
-		</a>
+<section class="info-section panel-surface" aria-label="About ASL">
+	<div class="info-content">
+		<h2 class="section-title">What is American Sign Language?</h2>
+		<p class="info-text">
+			American Sign Language (ASL) is a complete, natural language that employs signs made with the hands,
+			along with facial expressions and body postures. It is the primary language used by many deaf and
+			hard-of-hearing people in North America, and it has its own unique grammar and syntax that differs
+			from spoken English.
+		</p>
 	</div>
 </section>
 
-<!-- ===== TIPS ===== -->
-<section class="tips-section" aria-label="Quick tips">
-	<p class="tips-label">Quick Tips</p>
-	<div class="tips-grid">
-		<div class="tip-card fade-up">
-			<span class="tip-icon">💡</span>
-			<p class="tip-text">Use the <strong>search bar</strong> in Vocabulary to jump straight to any sign by keyword.</p>
-		</div>
-		<div class="tip-card fade-up">
-			<span class="tip-icon">📷</span>
-			<p class="tip-text">Keep your hand <strong>well-lit and centered</strong> in frame for the best recognition accuracy.</p>
-		</div>
-		<div class="tip-card fade-up">
-			<span class="tip-icon">🔒</span>
-			<p class="tip-text"><strong>Create a free account</strong> to save quiz scores and track your progress over time.</p>
-		</div>
-		<div class="tip-card fade-up">
-			<span class="tip-icon">🔁</span>
-			<p class="tip-text">Repeat the <strong>same quiz</strong> — repetition is the fastest way to build sign memory.</p>
+<section class="stats-grid" aria-label="ASL Statistics">
+	<div class="stat-card panel-surface">
+		<div class="stat-number" data-count="500000" data-suffix="+">500,000+</div>
+		<div class="stat-label">ASL users in the United States</div>
+	</div>
+	<div class="stat-card panel-surface">
+		<div class="stat-number" data-count="200" data-suffix="+ YRS">200+ years</div>
+		<div class="stat-label">of ASL history and evolution</div>
+	</div>
+	<div class="stat-card panel-surface">
+		<div class="stat-number">3rd</div>
+		<div class="stat-label">most studied language in U.S. colleges</div>
+	</div>
+</section>
+
+<section class="info-section panel-surface" aria-label="Why Learn ASL">
+	<div class="info-content">
+		<h2 class="section-title">Why Learn ASL?</h2>
+		<div class="benefits-grid">
+			<div class="benefit-item">
+				<h3 class="benefit-title">🤝 Bridge Communities</h3>
+				<p class="benefit-text">Connect with the Deaf community and foster inclusive communication in your workplace, school, or social circles.</p>
+			</div>
+			<div class="benefit-item">
+				<h3 class="benefit-title">🧠 Cognitive Benefits</h3>
+				<p class="benefit-text">Learning ASL enhances spatial awareness, improves peripheral vision, and strengthens memory and problem-solving skills.</p>
+			</div>
+			<div class="benefit-item">
+				<h3 class="benefit-title">💼 Career Opportunities</h3>
+				<p class="benefit-text">ASL proficiency opens doors in education, healthcare, social work, interpretation, and many other professional fields.</p>
+			</div>
+			<div class="benefit-item">
+				<h3 class="benefit-title">🌍 Cultural Enrichment</h3>
+				<p class="benefit-text">Gain insight into Deaf culture, history, and perspectives that have shaped a vibrant and resilient community.</p>
+			</div>
 		</div>
 	</div>
 </section>
 
+<section class="info-section panel-surface" aria-label="ASL Basics">
+	<div class="info-content">
+		<h2 class="section-title">ASL Fundamentals</h2>
+		<p class="info-text">
+			ASL is not simply a visual representation of English. It has its own distinct linguistic structure:
+		</p>
+		<ul class="info-list">
+			<li><strong>Visual-Spatial Grammar:</strong> ASL uses space and movement to convey grammatical information that spoken languages express through word order and inflection.</li>
+			<li><strong>Facial Expressions:</strong> Critical for conveying tone, emotion, and grammatical markers like questions or negations.</li>
+			<li><strong>Classifiers:</strong> Special handshapes that represent categories of objects and show their location, movement, and appearance.</li>
+			<li><strong>Non-Manual Signals:</strong> Head movements, body shifts, and eye gaze work together with manual signs to create complete meaning.</li>
+		</ul>
+	</div>
+</section>
+
+<section class="cta-section panel-surface" aria-label="Get Started">
+	<div class="cta-content">
+		<h2 class="section-title">Ready to Start Your ASL Journey?</h2>
+		<p class="cta-text">Our platform offers interactive tools to help you learn, practice, and master ASL at your own pace.</p>
+		<div class="cta-grid">
+			<a href="{% url 'learn_vocabularies' %}" class="cta-card">
+				<h3 class="cta-card-title">📚 Learn Vocabulary</h3>
+				<p class="cta-card-text">Explore our comprehensive sign dictionary and build your vocabulary foundation.</p>
+			</a>
+			<a href="{% url 'lets_practice' %}" class="cta-card">
+				<h3 class="cta-card-title">✋ Practice Signs</h3>
+				<p class="cta-card-text">Use our real-time translator to practice your signing and get instant feedback.</p>
+			</a>
+			<a href="{% url 'sharpen_your_brain' %}" class="cta-card">
+				<h3 class="cta-card-title">🎯 Test Your Skills</h3>
+				<p class="cta-card-text">Challenge yourself with interactive quizzes and track your progress over time.</p>
+			</a>
+		</div>
+	</div>
+</section>
 {% endblock %}
 
 {% block scripts %}
 <script>
 (function () {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    /* Offset the second connector so they pulse out of phase */
-    var delayed = document.querySelector('.step-connector--delay .step-connector-shine');
-    if (delayed) delayed.style.animationDelay = '1.25s';
+
+    function addCommas(n) {
+        return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    function animateCounter(el) {
+        var target = parseInt(el.dataset.count, 10);
+        var suffix = el.dataset.suffix || '';
+        var duration = 1800;
+        var startTime = null;
+
+        function step(timestamp) {
+            if (!startTime) startTime = timestamp;
+            var elapsed = timestamp - startTime;
+            var t = Math.min(elapsed / duration, 1);
+            var ease = 1 - Math.pow(1 - t, 4);
+            var value = Math.round(ease * target);
+            el.textContent = addCommas(value) + suffix;
+            if (t < 1) requestAnimationFrame(step);
+        }
+
+        requestAnimationFrame(step);
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+                animateCounter(entry.target);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.6 });
+
+    document.querySelectorAll('.stat-number[data-count]').forEach(function (el) {
+        observer.observe(el);
+    });
 })();
 </script>
 {% endblock %}

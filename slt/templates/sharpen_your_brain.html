@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Quiz{% endblock %}
+{% block title %}Sharpen Your Brain{% endblock %}
+
 {% block body_class %}page--brain{% endblock %}
 
 {% block extra_css %}
@@ -9,26 +10,17 @@
 {% endblock %}
 
 {% block content %}
-<form class="visually-hidden" aria-hidden="true">{% csrf_token %}</form>
+<form class="visually-hidden" aria-hidden="true">
+    {% csrf_token %}
+</form>
 
-<!-- ===== HERO ===== -->
-<section class="brain-hero" aria-label="Quiz page hero">
-	<div class="brain-orb brain-orb--a"></div>
-	<div class="brain-orb brain-orb--b"></div>
-	<div class="brain-orb brain-orb--c"></div>
-	<div class="brain-grid-overlay"></div>
-	<div class="brain-hero-inner">
-		<div class="brain-badge">
-			<span class="brain-badge-dot"></span>
-			Beat the timer
-		</div>
-		<h1 class="brain-hero-title">Sharpen Your<br><span class="gradient-text">Brain</span></h1>
-		<p class="brain-hero-sub">Watch the sign, pick the right answer before the clock runs out. Speed multiplier increases with every correct answer.</p>
-		<button class="brain-launch-btn" type="button" id="brain-launch-quiz">
-			<span class="brain-launch-icon">▶</span>
-			Start Quiz
-		</button>
-	</div>
+<section class="brain-hero panel-surface panel-surface--hero" aria-label="Sharpen Your Brain page">
+    <p class="eyebrow">Quiz</p>
+    <h1 class="display-title">Start the sign quiz.</h1>
+    <p class="lead-copy">Answer quickly before the timer runs out.</p>
+    <div class="action-row">
+        <button class="button button--primary" type="button" id="brain-launch-quiz">Start Quiz</button>
+    </div>
 </section>
 
 <!-- ===== SYLLABUS ===== -->
@@ -75,99 +67,86 @@
 	</div>
 </section>
 
-<!-- ===== LEADERBOARD ===== -->
 <section class="brain-leaderboard-layout" aria-label="Global quiz leaderboard">
-	<article class="panel-surface brain-leaderboard-card" data-leaderboard-url="{% url 'brain_quiz_leaderboard' %}">
-		<div class="brain-leaderboard-card__header">
-			<div>
-				<p class="eyebrow">Global Rankings</p>
-				<h2>Leaderboard</h2>
-			</div>
-			<div class="brain-leaderboard-card__meta">
-				<span class="status-pill" id="brain-leaderboard-status">Live refresh every 15s</span>
-				<p id="brain-leaderboard-updated">Waiting for leaderboard...</p>
-			</div>
-		</div>
-		<div class="brain-leaderboard-summary" id="brain-leaderboard-summary">
-			<div class="brain-leaderboard-summary__item">
-				<span>Players ranked</span>
-				<strong id="brain-leaderboard-player-count">0</strong>
-			</div>
-			<div class="brain-leaderboard-summary__item">
-				<span>Your position</span>
-				<strong id="brain-leaderboard-current-rank">Unranked</strong>
-			</div>
-		</div>
-		<div class="brain-leaderboard-table" id="brain-leaderboard-table" role="list">
-			<div class="brain-leaderboard-empty">Loading leaderboard...</div>
-		</div>
-	</article>
+    <article class="panel-surface brain-leaderboard-card" data-leaderboard-url="{% url 'brain_quiz_leaderboard' %}">
+        <div class="brain-leaderboard-card__header">
+            <div>
+                <h2>Leaderboard</h2>
+            </div>
+            <div class="brain-leaderboard-card__meta">
+                <span class="status-pill" id="brain-leaderboard-status">Live refresh every 15s</span>
+                <p id="brain-leaderboard-updated">Waiting for leaderboard...</p>
+            </div>
+        </div>
+
+        <div class="brain-leaderboard-summary" id="brain-leaderboard-summary">
+            <div class="brain-leaderboard-summary__item">
+                <span>Players ranked</span>
+                <strong id="brain-leaderboard-player-count">0</strong>
+            </div>
+            <div class="brain-leaderboard-summary__item">
+                <span>Your position</span>
+                <strong id="brain-leaderboard-current-rank">Unranked</strong>
+            </div>
+        </div>
+
+        <div class="brain-leaderboard-table" id="brain-leaderboard-table" role="list">
+            <div class="brain-leaderboard-empty">Loading leaderboard...</div>
+        </div>
+    </article>
 </section>
 
-<!-- ===== QUIZ MODAL ===== -->
-<div class="quiz-modal" id="brain-quiz-modal" aria-hidden="true"
-	data-quiz-url="{% url 'brain_quiz_question' %}"
-	data-save-attempt-url="{% url 'brain_quiz_attempt_save' %}">
-	<div class="quiz-modal__backdrop" data-close-quiz="true"></div>
-	<section class="quiz-modal__dialog panel-surface" role="dialog" aria-modal="true" aria-labelledby="brain-quiz-title">
-		<button class="quiz-modal__close" type="button" id="brain-close-quiz" aria-label="Close quiz">✕ Close</button>
+<div class="quiz-modal" id="brain-quiz-modal" aria-hidden="true" data-quiz-url="{% url 'brain_quiz_question' %}" data-save-attempt-url="{% url 'brain_quiz_attempt_save' %}">
+    <div class="quiz-modal__backdrop" data-close-quiz="true"></div>
+    <section class="quiz-modal__dialog panel-surface" role="dialog" aria-modal="true" aria-labelledby="brain-quiz-title">
+        <button class="quiz-modal__close" type="button" id="brain-close-quiz" aria-label="Close quiz">Close</button>
 
-		<div class="quiz-start-screen" id="brain-start-screen">
-			<div class="quiz-screen-icon">🎯</div>
-			<h2 id="brain-quiz-title">Ready to Begin?</h2>
-			<p>The timer starts full and drains every second. Correct answers refill it — wrong ones drain it faster.</p>
-			<button class="button button--primary" type="button" id="brain-start-quiz">Begin Round</button>
-		</div>
+        <div class="quiz-start-screen" id="brain-start-screen">
+            <h2 id="brain-quiz-title">Ready to begin?</h2>
+            <p>The timer starts full and keeps dropping until the round ends.</p>
+            <button class="button button--primary" type="button" id="brain-start-quiz">Begin round</button>
+        </div>
 
-		<div class="quiz-game" id="brain-quiz-game" hidden>
-			<div class="quiz-hud">
-				<div class="quiz-stat quiz-stat--score">
-					<span>Score</span>
-					<strong id="brain-score">0</strong>
-				</div>
-				<div class="quiz-stat">
-					<span>Answered</span>
-					<strong id="brain-answered">0</strong>
-				</div>
-				<div class="quiz-stat quiz-stat--speed">
-					<span>Speed</span>
-					<strong id="brain-speed">1.0x</strong>
-				</div>
-			</div>
+        <div class="quiz-game" id="brain-quiz-game" hidden>
+            <div class="quiz-hud">
+                <div class="quiz-stat"><span>Score</span><strong id="brain-score">0</strong></div>
+                <div class="quiz-stat"><span>Answered</span><strong id="brain-answered">0</strong></div>
+                <div class="quiz-stat"><span>Speed</span><strong id="brain-speed">1.0x</strong></div>
+            </div>
 
-			<div class="quiz-timer" aria-label="Quiz timer">
-				<div class="quiz-timer__bar">
-					<div class="quiz-timer__fill" id="brain-timer-fill"></div>
-				</div>
-				<div class="quiz-timer__meta">
-					<span>Timer</span>
-					<strong id="brain-timer-label">100%</strong>
-				</div>
-			</div>
+            <div class="quiz-timer" aria-label="Quiz timer">
+                <div class="quiz-timer__bar">
+                    <div class="quiz-timer__fill" id="brain-timer-fill"></div>
+                </div>
+                <div class="quiz-timer__meta">
+                    <span>Timer</span>
+                    <strong id="brain-timer-label">100%</strong>
+                </div>
+            </div>
 
-			<article class="quiz-question-box">
-				<div class="quiz-video-shell" id="brain-video-shell">
-					<div class="quiz-video-shell__loading">Loading question...</div>
-				</div>
-				<div class="quiz-copy">
-					<h2 id="brain-question-prompt">What does this sign mean?</h2>
-					<p class="quiz-feedback" id="brain-feedback">Choose the matching answer.</p>
-				</div>
-				<div class="quiz-options" id="brain-options"></div>
-			</article>
-		</div>
+            <article class="quiz-question-box">
+                <div class="quiz-video-shell" id="brain-video-shell">
+                    <div class="quiz-video-shell__loading">Loading question...</div>
+                </div>
 
-		<div class="quiz-end-screen" id="brain-end-screen" hidden>
-			<div class="quiz-screen-icon">🏆</div>
-			<h2>Round Finished!</h2>
-			<p id="brain-end-summary">You answered 0 questions.</p>
-			<div class="action-row" style="justify-content:center">
-				<button class="button button--primary" type="button" id="brain-restart-quiz">Play Again</button>
-			</div>
-		</div>
-	</section>
+                <div class="quiz-copy">
+                    <h2 id="brain-question-prompt">What does this sign mean?</h2>
+                    <p class="quiz-feedback" id="brain-feedback">Choose the matching answer.</p>
+                </div>
+
+                <div class="quiz-options" id="brain-options"></div>
+            </article>
+        </div>
+
+        <div class="quiz-end-screen" id="brain-end-screen" hidden>
+            <h2>Round finished.</h2>
+            <p id="brain-end-summary">You answered 0 questions.</p>
+            <div class="action-row">
+                <button class="button button--primary" type="button" id="brain-restart-quiz">Play again</button>
+            </div>
+        </div>
+    </section>
 </div>
-
 {% endblock %}
 
 {% block scripts %}

@@ -1,8 +1,5 @@
 """Django settings for the slt project."""
 
-import pymysql
-pymysql.install_as_MySQLdb()
-
 import importlib.util
 import os
 from pathlib import Path
@@ -96,44 +93,34 @@ TEMPLATES = [
 WSGI_APPLICATION = 'slt.wsgi.application'
 
 
-# Database configuration
-# For local development, use SQLite
-if DEBUG:
+# Parse MySQL connection from environment
+MYSQL_URL = os.environ.get('MYSQL_URL')
+if MYSQL_URL:
+    # Parse from MYSQL_URL format: mysql://user:password@host:port/database
+    from urllib.parse import urlparse
+    parsed = urlparse(MYSQL_URL)
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': parsed.path.lstrip('/'),
+            'USER': parsed.username,
+            'PASSWORD': parsed.password,
+            'HOST': parsed.hostname,
+            'PORT': parsed.port or 3306,
         }
     }
 else:
-    # Production: Parse MySQL connection from environment
-    MYSQL_URL = os.environ.get('MYSQL_URL')
-    if MYSQL_URL:
-        # Parse from MYSQL_URL format: mysql://user:password@host:port/database
-        from urllib.parse import urlparse
-        parsed = urlparse(MYSQL_URL)
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.mysql',
-                'NAME': parsed.path.lstrip('/'),
-                'USER': parsed.username,
-                'PASSWORD': parsed.password,
-                'HOST': parsed.hostname,
-                'PORT': parsed.port or 3306,
-            }
+    # Fallback for local development
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('MYSQLDATABASE', 'slt_db'),
+            'USER': os.environ.get('MYSQLUSER', 'root'),
+            'PASSWORD': os.environ.get('MYSQLPASSWORD', ''),
+            'HOST': os.environ.get('MYSQLHOST', '127.0.0.1'),
+            'PORT': int(os.environ.get('MYSQLPORT', 3306)),
         }
-    else:
-        # Fallback for local MySQL
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.mysql',
-                'NAME': os.environ.get('MYSQLDATABASE', 'slt_db'),
-                'USER': os.environ.get('MYSQLUSER', 'root'),
-                'PASSWORD': os.environ.get('MYSQLPASSWORD', ''),
-                'HOST': os.environ.get('MYSQLHOST', '127.0.0.1'),
-                'PORT': int(os.environ.get('MYSQLPORT', 3306)),
-            }
-        }
+    }
 
 
 AUTH_PASSWORD_VALIDATORS = [

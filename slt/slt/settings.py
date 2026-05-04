@@ -39,7 +39,7 @@ def _env_list(name: str, default: list[str]) -> list[str]:
 
 DEBUG = _env_bool('DJANGO_DEBUG', True)
 
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+SECRET_KEY = os.environ.get('jn27qmmpiuinx3au36cv0uzgcrj1oixqvtfpmqb9cpip6rxy6b')
 if not SECRET_KEY:
     if DEBUG:
         SECRET_KEY = 'local-development-secret-key-change-before-production-2026'

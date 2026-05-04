@@ -4,7 +4,8 @@
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\parag\\\\Desktop\\\\slt_final_main\\\\slt\" -Recurse)",
       "Bash(Select-Object FullName)",
       "Bash(ConvertTo-Csv -NoTypeInformation)",
-      "Bash(Select-Object -Skip 1)"
+      "Bash(Select-Object -Skip 1)",
+      "PowerShell(Get-Content \"c:\\\\Users\\\\parag\\\\Desktop\\\\slt_final_main\\\\slt\\\\requirements.txt\" | ForEach-Object { \"'$_'\" })"
     ]
   }
 }
